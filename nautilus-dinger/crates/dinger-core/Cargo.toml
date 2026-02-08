@@ -1,0 +1,9 @@
+[package]
+name = "dinger-core"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Add dependencies here as needed, e.g.,
+# serde = { version = "1.0", features = ["derive"] }
+# tokio = { version = "1.0", features = ["full"] }

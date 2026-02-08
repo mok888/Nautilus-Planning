@@ -1,0 +1,24 @@
+[project]
+name = "nautilus_adapter"
+version = "0.1.0"
+description = "NautilusTrader adapters generated via Nautilus-Dinger"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    {name = "User", email = "user@example.com"},
+]
+dependencies = [
+    "nautilus_trader>=1.211.0",
+    "pydantic>=2.0",
+    "python-dotenv",
+    "rich>=10.0.0",
+]
+
+[project.scripts]
+builder = "nautilus_adapter.cli:main"
+dinger = "nautilus_adapter.cli:main"
+nautilus-dinger = "nautilus_adapter.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

@@ -1,0 +1,75 @@
+```yaml
+exchange_identity:
+  exchange_name: Nado
+  venue_id: NADO
+  exchange_type: DEX
+market_coverage:
+  spot_supported: true
+  perps_supported: false
+  futures_supported: false
+  options_supported: false
+rest_api:
+  rest_base_url: https://api.nado.xyz
+  api_version: v1
+  rate_limits:
+    - UNKNOWN
+authentication:
+  auth_type: API_KEY
+  headers:
+    - X-API-KEY
+  timestamp_format: UNKNOWN
+  signature_payload: UNKNOWN
+  hash_algo: UNKNOWN
+  encoding: UNKNOWN
+  passphrase_required: false
+rest_endpoints:
+  - name: Quote
+    path: /v1/quote
+    method: POST
+    auth_required: true
+    request_fields:
+      - src
+      - dst
+      - amount
+      - slippage
+    response_fields:
+      - price
+      - gasPrice
+      - protocolFee
+  - name: Swap
+    path: /v1/swap
+    method: POST
+    auth_required: true
+    request_fields:
+      - quoteId
+    response_fields:
+      - encodedTx
+      - txHash
+websocket_public:
+  ws_public_url: UNKNOWN
+  channels:
+    - UNKNOWN
+  heartbeat_interval_sec: UNKNOWN
+websocket_private:
+  ws_private_url: UNKNOWN
+  auth_required: UNKNOWN
+  order_updates: UNKNOWN
+  fills: UNKNOWN
+  balance_updates: UNKNOWN
+order_model:
+  order_types:
+    - UNKNOWN
+  order_states:
+    - UNKNOWN
+  partial_fill_behavior: UNKNOWN
+  cancel_behavior: UNKNOWN
+instrument_metadata:
+  instrument_id_format: ADDRESS
+  price_precision: 8
+  quantity_precision: 8
+  contract_size: UNKNOWN
+special_notes:
+  - Nado is a decentralized exchange (DEX) aggregator and execution platform.
+  - Trading is conducted via atomic swaps rather than an order book model.
+  - Instrument identifiers are typically blockchain contract addresses.
+```

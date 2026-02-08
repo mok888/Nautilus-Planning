@@ -1,0 +1,1485 @@
+
+--- NEW CHECK ---
+ROOT: /tmp/tmpgs1u248s
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+thiserror = "1"
+serde = { version = "1", features = ["derive"] }
+chrono = { version = "0.4", features = ["serde"] }
+nautilus_trader = "1.211.0"
+
+WRITING: src/config.rs -> /tmp/tmpgs1u248s/src/src/config.rs
+WRITING: src/error.rs -> /tmp/tmpgs1u248s/src/src/error.rs
+WRITING: src/http/signing.rs -> /tmp/tmpgs1u248s/src/src/http/signing.rs
+WRITING: src/http/client.rs -> /tmp/tmpgs1u248s/src/src/http/client.rs
+WRITING: src/parsing/models.rs -> /tmp/tmpgs1u248s/src/src/parsing/models.rs
+WRITING: src/websocket/client.rs -> /tmp/tmpgs1u248s/src/src/websocket/client.rs
+WRITING: src/python/mod.rs -> /tmp/tmpgs1u248s/src/src/python/mod.rs
+CARGO CHECK FAILED:
+    Updating crates.io index
+error: no matching package named `nautilus_trader` found
+location searched: crates.io index
+required by package `adapter_check v0.1.0 (/tmp/tmpgs1u248s)`
+
+
+--- NEW CHECK ---
+ROOT: /tmp/tmpy5yjtysr
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+# We omit external dependencies here to avoid download failures.
+# cargo check will flag unresolved imports, which we will filter out.
+
+WRITING: src/config.rs -> /tmp/tmpy5yjtysr/src/src/config.rs
+WRITING: src/error.rs -> /tmp/tmpy5yjtysr/src/src/error.rs
+WRITING: src/http/signing.rs -> /tmp/tmpy5yjtysr/src/src/http/signing.rs
+WRITING: src/http/client.rs -> /tmp/tmpy5yjtysr/src/src/http/client.rs
+WRITING: src/parsing/models.rs -> /tmp/tmpy5yjtysr/src/src/parsing/models.rs
+WRITING: src/websocket/client.rs -> /tmp/tmpy5yjtysr/src/src/websocket/client.rs
+WRITING: src/python/mod.rs -> /tmp/tmpy5yjtysr/src/src/python/mod.rs
+
+--- NEW CHECK ---
+ROOT: /tmp/tmp09flk841
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+# We omit external dependencies here to avoid download failures.
+# cargo check will flag unresolved imports, which we will filter out.
+
+WRITING: lighter_adapter/src/config.rs -> /tmp/tmp09flk841/src/lighter_adapter/src/config.rs
+WRITING: lighter_adapter/src/error.rs -> /tmp/tmp09flk841/src/lighter_adapter/src/error.rs
+WRITING: lighter_adapter/src/http/client.rs -> /tmp/tmp09flk841/src/lighter_adapter/src/http/client.rs
+WRITING: lighter_adapter/src/http/signing.rs -> /tmp/tmp09flk841/src/lighter_adapter/src/http/signing.rs
+WRITING: lighter_adapter/src/websocket/client.rs -> /tmp/tmp09flk841/src/lighter_adapter/src/websocket/client.rs
+WRITING: lighter_adapter/src/parsing/models.rs -> /tmp/tmp09flk841/src/lighter_adapter/src/parsing/models.rs
+WRITING: lighter_adapter/src/python/mod.rs -> /tmp/tmp09flk841/src/lighter_adapter/src/python/mod.rs
+
+--- NEW CHECK ---
+ROOT: /tmp/tmpgvpjg10y
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+# We omit external dependencies here to avoid download failures.
+# cargo check will flag unresolved imports, which we will filter out.
+
+WRITING: lighter_adapter/src/config.rs -> /tmp/tmpgvpjg10y/src/lighter_adapter/src/config.rs
+WRITING: lighter_adapter/src/error.rs -> /tmp/tmpgvpjg10y/src/lighter_adapter/src/error.rs
+WRITING: lighter_adapter/src/http/client.rs -> /tmp/tmpgvpjg10y/src/lighter_adapter/src/http/client.rs
+WRITING: lighter_adapter/src/http/signing.rs -> /tmp/tmpgvpjg10y/src/lighter_adapter/src/http/signing.rs
+WRITING: lighter_adapter/src/websocket/client.rs -> /tmp/tmpgvpjg10y/src/lighter_adapter/src/websocket/client.rs
+WRITING: lighter_adapter/src/parsing/models.rs -> /tmp/tmpgvpjg10y/src/lighter_adapter/src/parsing/models.rs
+WRITING: lighter_adapter/src/python/mod.rs -> /tmp/tmpgvpjg10y/src/lighter_adapter/src/python/mod.rs
+
+--- NEW CHECK ---
+ROOT: /tmp/tmp_bd8w1kk
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+# We omit external dependencies here to avoid download failures.
+# cargo check will flag unresolved imports, which we will filter out.
+
+WRITING: lighter_adapter/src/config.rs -> /tmp/tmp_bd8w1kk/src/lighter_adapter/src/config.rs
+WRITING: lighter_adapter/src/error.rs -> /tmp/tmp_bd8w1kk/src/lighter_adapter/src/error.rs
+WRITING: lighter_adapter/src/http/client.rs -> /tmp/tmp_bd8w1kk/src/lighter_adapter/src/http/client.rs
+WRITING: lighter_adapter/src/http/signing.rs -> /tmp/tmp_bd8w1kk/src/lighter_adapter/src/http/signing.rs
+WRITING: lighter_adapter/src/websocket/client.rs -> /tmp/tmp_bd8w1kk/src/lighter_adapter/src/websocket/client.rs
+WRITING: lighter_adapter/src/parsing/models.rs -> /tmp/tmp_bd8w1kk/src/lighter_adapter/src/parsing/models.rs
+WRITING: lighter_adapter/src/python/mod.rs -> /tmp/tmp_bd8w1kk/src/lighter_adapter/src/python/mod.rs
+
+--- NEW CHECK ---
+ROOT: /tmp/tmpxg9abxvl
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+# We omit external dependencies here to avoid download failures.
+# cargo check will flag unresolved imports, which we will filter out.
+
+WRITING: config.rs -> /tmp/tmpxg9abxvl/src/config.rs
+WRITING: error.rs -> /tmp/tmpxg9abxvl/src/error.rs
+WRITING: http/client.rs -> /tmp/tmpxg9abxvl/src/http/client.rs
+WRITING: http/signing.rs -> /tmp/tmpxg9abxvl/src/http/signing.rs
+WRITING: websocket/client.rs -> /tmp/tmpxg9abxvl/src/websocket/client.rs
+WRITING: parsing/models.rs -> /tmp/tmpxg9abxvl/src/parsing/models.rs
+WRITING: python/mod.rs -> /tmp/tmpxg9abxvl/src/python/mod.rs
+CRITICAL CARGO ERRORS:
+1 | use thiserror::Error;
+18 |     #[error("Parsing error: {0}")]
+21 |     #[error("Websocket error: {0}")]
+error: could not compile `adapter_check` (lib) due to 14 previous errors
+
+--- NEW CHECK ---
+ROOT: /tmp/tmplyu90123
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tokio = { version = "1.0", features = ["full"] }
+chrono = "0.4"
+base64 = "0.21"
+hmac = "0.12"
+sha2 = "0.10"
+anyhow = "1.0"
+url = "2.4"
+hyper = "0.14"
+http = "0.2"
+nautilus_model = { git = "https://github.com/nautechsystems/nautilus_trader", tag = "v1.189.0" }
+nautilus_common = { git = "https://github.com/nautechsystems/nautilus_trader", tag = "v1.189.0" }
+nautilus_network = { git = "https://github.com/nautechsystems/nautilus_trader", tag = "v1.189.0" }
+
+WRITING: lighter/src/config.rs -> /tmp/tmplyu90123/src/lighter/src/config.rs
+WRITING: lighter/src/error.rs -> /tmp/tmplyu90123/src/lighter/src/error.rs
+WRITING: lighter/src/http/signing.rs -> /tmp/tmplyu90123/src/lighter/src/http/signing.rs
+WRITING: lighter/src/http/client.rs -> /tmp/tmplyu90123/src/lighter/src/http/client.rs
+WRITING: lighter/src/websocket/client.rs -> /tmp/tmplyu90123/src/lighter/src/websocket/client.rs
+WRITING: lighter/src/parsing/models.rs -> /tmp/tmplyu90123/src/lighter/src/parsing/models.rs
+WRITING: lighter/src/python/mod.rs -> /tmp/tmplyu90123/src/lighter/src/python/mod.rs
+CRITICAL CARGO ERRORS:
+error: no matching package named `nautilus_common` found
+
+--- NEW CHECK ---
+ROOT: /tmp/tmpc507ujxj
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tokio = { version = "1.0", features = ["full"] }
+chrono = "0.4"
+base64 = "0.21"
+hmac = "0.12"
+sha2 = "0.10"
+anyhow = "1.0"
+url = "2.4"
+hyper = "0.14"
+http = "0.2"
+
+WRITING: lighter/src/config.rs -> /tmp/tmpc507ujxj/src/lighter/src/config.rs
+WRITING: lighter/src/error.rs -> /tmp/tmpc507ujxj/src/lighter/src/error.rs
+WRITING: lighter/src/http/signing.rs -> /tmp/tmpc507ujxj/src/lighter/src/http/signing.rs
+WRITING: lighter/src/http/client.rs -> /tmp/tmpc507ujxj/src/lighter/src/http/client.rs
+WRITING: lighter/src/websocket/client.rs -> /tmp/tmpc507ujxj/src/lighter/src/websocket/client.rs
+WRITING: lighter/src/parsing/models.rs -> /tmp/tmpc507ujxj/src/lighter/src/parsing/models.rs
+WRITING: lighter/src/python/mod.rs -> /tmp/tmpc507ujxj/src/lighter/src/python/mod.rs
+
+--- NEW CHECK ---
+ROOT: /tmp/tmp8f5s1zhz
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tokio = { version = "1.0", features = ["full"] }
+chrono = "0.4"
+base64 = "0.21"
+hmac = "0.12"
+sha2 = "0.10"
+anyhow = "1.0"
+url = "2.4"
+hyper = "0.14"
+http = "0.2"
+
+WRITING: lighter/src/config.rs -> /tmp/tmp8f5s1zhz/src/lighter/src/config.rs
+WRITING: lighter/src/error.rs -> /tmp/tmp8f5s1zhz/src/lighter/src/error.rs
+WRITING: lighter/src/http/signing.rs -> /tmp/tmp8f5s1zhz/src/lighter/src/http/signing.rs
+WRITING: lighter/src/http/client.rs -> /tmp/tmp8f5s1zhz/src/lighter/src/http/client.rs
+WRITING: lighter/src/websocket/client.rs -> /tmp/tmp8f5s1zhz/src/lighter/src/websocket/client.rs
+WRITING: lighter/src/parsing/models.rs -> /tmp/tmp8f5s1zhz/src/lighter/src/parsing/models.rs
+WRITING: lighter/src/python/mod.rs -> /tmp/tmp8f5s1zhz/src/lighter/src/python/mod.rs
+
+--- NEW CHECK ---
+ROOT: /tmp/tmp5q3yl25j
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tokio = { version = "1.0", features = ["full"] }
+chrono = "0.4"
+base64 = "0.21"
+hmac = "0.12"
+sha2 = "0.10"
+anyhow = "1.0"
+url = "2.4"
+hyper = "0.14"
+http = "0.2"
+
+WRITING: lighter/src/config.rs -> /tmp/tmp5q3yl25j/src/lighter/src/config.rs
+WRITING: lighter/src/error.rs -> /tmp/tmp5q3yl25j/src/lighter/src/error.rs
+WRITING: lighter/src/http/signing.rs -> /tmp/tmp5q3yl25j/src/lighter/src/http/signing.rs
+WRITING: lighter/src/http/client.rs -> /tmp/tmp5q3yl25j/src/lighter/src/http/client.rs
+WRITING: lighter/src/websocket/client.rs -> /tmp/tmp5q3yl25j/src/lighter/src/websocket/client.rs
+WRITING: lighter/src/parsing/models.rs -> /tmp/tmp5q3yl25j/src/lighter/src/parsing/models.rs
+WRITING: lighter/src/python/mod.rs -> /tmp/tmp5q3yl25j/src/lighter/src/python/mod.rs
+
+--- NEW CHECK ---
+ROOT: /tmp/tmpz1gv3_1f
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tokio = { version = "1.0", features = ["full"] }
+chrono = "0.4"
+base64 = "0.21"
+hmac = "0.12"
+sha2 = "0.10"
+anyhow = "1.0"
+url = "2.4"
+hyper = "0.14"
+http = "0.2"
+
+WRITING: lighter/src/config.rs -> /tmp/tmpz1gv3_1f/src/lighter/src/config.rs
+WRITING: lighter/src/error.rs -> /tmp/tmpz1gv3_1f/src/lighter/src/error.rs
+WRITING: lighter/src/http/signing.rs -> /tmp/tmpz1gv3_1f/src/lighter/src/http/signing.rs
+WRITING: lighter/src/http/client.rs -> /tmp/tmpz1gv3_1f/src/lighter/src/http/client.rs
+WRITING: lighter/src/websocket/client.rs -> /tmp/tmpz1gv3_1f/src/lighter/src/websocket/client.rs
+WRITING: lighter/src/parsing/models.rs -> /tmp/tmpz1gv3_1f/src/lighter/src/parsing/models.rs
+WRITING: lighter/src/python/mod.rs -> /tmp/tmpz1gv3_1f/src/lighter/src/python/mod.rs
+
+--- NEW CHECK ---
+ROOT: /tmp/tmpk07u83u5
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tokio = { version = "1.0", features = ["full"] }
+chrono = "0.4"
+base64 = "0.21"
+hmac = "0.12"
+sha2 = "0.10"
+anyhow = "1.0"
+url = "2.4"
+hyper = "0.14"
+http = "0.2"
+
+WRITING: config.rs -> /tmp/tmpk07u83u5/src/config.rs
+WRITING: error.rs -> /tmp/tmpk07u83u5/src/error.rs
+WRITING: http/client.rs -> /tmp/tmpk07u83u5/src/http/client.rs
+WRITING: http/signing.rs -> /tmp/tmpk07u83u5/src/http/signing.rs
+WRITING: websocket/client.rs -> /tmp/tmpk07u83u5/src/websocket/client.rs
+WRITING: parsing/models.rs -> /tmp/tmpk07u83u5/src/parsing/models.rs
+WRITING: python/mod.rs -> /tmp/tmpk07u83u5/src/python/mod.rs
+CRITICAL CARGO ERRORS:
+error: mismatched closing delimiter: `}`
+29 |     #[error("Parsing error: {0}")
+error: could not compile `adapter_check` (lib) due to 1 previous error
+
+--- NEW CHECK ---
+ROOT: /tmp/tmpik1meqwq
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tokio = { version = "1.36", features = ["full"] }
+chrono = "0.4"
+base64 = "0.21"
+hmac = "0.12"
+sha2 = "0.10"
+anyhow = "1.0"
+url = "2.4"
+hyper = { version = "1.2", features = ["full"] }
+hyper-util = { version = "0.1", features = ["full"] }
+hyper-rustls = "0.26"
+tower = { version = "0.4", features = ["full"] }
+governor = "0.6"
+
+WRITING: src/config.rs -> /tmp/tmpik1meqwq/src/src/config.rs
+WRITING: src/error.rs -> /tmp/tmpik1meqwq/src/src/error.rs
+WRITING: src/parsing/models.rs -> /tmp/tmpik1meqwq/src/src/parsing/models.rs
+WRITING: src/http/signing.rs -> /tmp/tmpik1meqwq/src/src/http/signing.rs
+WRITING: src/http/client.rs -> /tmp/tmpik1meqwq/src/src/http/client.rs
+WRITING: src/websocket/client.rs -> /tmp/tmpik1meqwq/src/src/websocket/client.rs
+WRITING: src/python/mod.rs -> /tmp/tmpik1meqwq/src/src/python/mod.rs
+
+--- NEW CHECK ---
+ROOT: /tmp/tmpmp73zcb1
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tokio = { version = "1.36", features = ["full"] }
+chrono = "0.4"
+base64 = "0.21"
+hmac = "0.12"
+sha2 = "0.10"
+anyhow = "1.0"
+url = "2.4"
+hyper = { version = "1.2", features = ["full"] }
+hyper-util = { version = "0.1", features = ["full"] }
+hyper-rustls = "0.26"
+tower = { version = "0.4", features = ["full"] }
+governor = "0.6"
+
+WRITING: src/config.rs -> /tmp/tmpmp73zcb1/src/src/config.rs
+WRITING: src/error.rs -> /tmp/tmpmp73zcb1/src/src/error.rs
+WRITING: src/parsing/models.rs -> /tmp/tmpmp73zcb1/src/src/parsing/models.rs
+WRITING: src/http/signing.rs -> /tmp/tmpmp73zcb1/src/src/http/signing.rs
+WRITING: src/http/client.rs -> /tmp/tmpmp73zcb1/src/src/http/client.rs
+WRITING: src/websocket/client.rs -> /tmp/tmpmp73zcb1/src/src/websocket/client.rs
+WRITING: src/python/mod.rs -> /tmp/tmpmp73zcb1/src/src/python/mod.rs
+
+--- NEW CHECK ---
+ROOT: /tmp/tmpf1e13d4k
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tokio = { version = "1.36", features = ["full"] }
+chrono = "0.4"
+base64 = "0.21"
+hmac = "0.12"
+sha2 = "0.10"
+anyhow = "1.0"
+url = "2.4"
+hyper = { version = "1.2", features = ["full"] }
+hyper-util = { version = "0.1", features = ["full"] }
+hyper-rustls = "0.26"
+tower = { version = "0.4", features = ["full"] }
+governor = "0.6"
+
+WRITING: nautilus_adapter/lighter/config.rs -> /tmp/tmpf1e13d4k/src/nautilus_adapter/lighter/config.rs
+WRITING: nautilus_adapter/lighter/error.rs -> /tmp/tmpf1e13d4k/src/nautilus_adapter/lighter/error.rs
+WRITING: nautilus_adapter/lighter/http/signing.rs -> /tmp/tmpf1e13d4k/src/nautilus_adapter/lighter/http/signing.rs
+WRITING: nautilus_adapter/lighter/http/client.rs -> /tmp/tmpf1e13d4k/src/nautilus_adapter/lighter/http/client.rs
+WRITING: nautilus_adapter/lighter/websocket/client.rs -> /tmp/tmpf1e13d4k/src/nautilus_adapter/lighter/websocket/client.rs
+WRITING: nautilus_adapter/lighter/parsing/models.rs -> /tmp/tmpf1e13d4k/src/nautilus_adapter/lighter/parsing/models.rs
+WRITING: nautilus_adapter/lighter/python/mod.rs -> /tmp/tmpf1e13d4k/src/nautilus_adapter/lighter/python/mod.rs
+WRITING: nautilus_adapter/lighter/lib.rs -> /tmp/tmpf1e13d4k/src/nautilus_adapter/lighter/lib.rs
+
+--- NEW CHECK ---
+ROOT: /tmp/tmpzwbmm9vq
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tokio = { version = "1.36", features = ["full"] }
+chrono = "0.4"
+base64 = "0.21"
+hmac = "0.12"
+sha2 = "0.10"
+anyhow = "1.0"
+url = "2.4"
+hyper = { version = "1.2", features = ["full"] }
+hyper-util = { version = "0.1", features = ["full"] }
+hyper-rustls = "0.26"
+tower = { version = "0.4", features = ["full"] }
+governor = "0.6"
+
+WRITING: config.rs -> /tmp/tmpzwbmm9vq/src/config.rs
+WRITING: error.rs -> /tmp/tmpzwbmm9vq/src/error.rs
+WRITING: http/signing.rs -> /tmp/tmpzwbmm9vq/src/http/signing.rs
+WRITING: http/client.rs -> /tmp/tmpzwbmm9vq/src/http/client.rs
+WRITING: parsing/models.rs -> /tmp/tmpzwbmm9vq/src/parsing/models.rs
+WRITING: websocket/client.rs -> /tmp/tmpzwbmm9vq/src/websocket/client.rs
+WRITING: python/mod.rs -> /tmp/tmpzwbmm9vq/src/python/mod.rs
+CRITICAL CARGO ERRORS:
+error: could not compile `adapter_check` (lib) due to 1 previous error
+
+--- NEW CHECK ---
+ROOT: /tmp/tmpz6d32x9d
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tokio = { version = "1.36", features = ["full"] }
+chrono = "0.4"
+base64 = "0.21"
+hmac = "0.12"
+sha2 = "0.10"
+anyhow = "1.0"
+url = "2.4"
+hyper = { version = "1.2", features = ["full"] }
+hyper-util = { version = "0.1", features = ["full"] }
+hyper-rustls = "0.26"
+tower = { version = "0.4", features = ["full"] }
+governor = "0.6"
+tokio-tungstenite = "0.20"
+futures = "0.3"
+
+WRITING: config.rs -> /tmp/tmpz6d32x9d/src/config.rs
+WRITING: error.rs -> /tmp/tmpz6d32x9d/src/error.rs
+WRITING: http/signing.rs -> /tmp/tmpz6d32x9d/src/http/signing.rs
+WRITING: http/client.rs -> /tmp/tmpz6d32x9d/src/http/client.rs
+WRITING: parsing/models.rs -> /tmp/tmpz6d32x9d/src/parsing/models.rs
+WRITING: websocket/client.rs -> /tmp/tmpz6d32x9d/src/websocket/client.rs
+WRITING: python/mod.rs -> /tmp/tmpz6d32x9d/src/python/mod.rs
+
+--- NEW CHECK ---
+ROOT: /tmp/tmp9futa56z
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tokio = { version = "1.36", features = ["full"] }
+chrono = "0.4"
+base64 = "0.21"
+hmac = "0.12"
+sha2 = "0.10"
+anyhow = "1.0"
+url = "2.4"
+hyper = { version = "1.2", features = ["full"] }
+hyper-util = { version = "0.1", features = ["full"] }
+hyper-rustls = "0.26"
+tower = { version = "0.4", features = ["full"] }
+governor = "0.6"
+tokio-tungstenite = "0.20"
+futures = "0.3"
+
+WRITING: config.rs -> /tmp/tmp9futa56z/src/config.rs
+WRITING: error.rs -> /tmp/tmp9futa56z/src/error.rs
+WRITING: http/signing.rs -> /tmp/tmp9futa56z/src/http/signing.rs
+WRITING: http/client.rs -> /tmp/tmp9futa56z/src/http/client.rs
+WRITING: parsing/models.rs -> /tmp/tmp9futa56z/src/parsing/models.rs
+WRITING: websocket/client.rs -> /tmp/tmp9futa56z/src/websocket/client.rs
+WRITING: python/mod.rs -> /tmp/tmp9futa56z/src/python/mod.rs
+
+--- NEW CHECK ---
+ROOT: /tmp/tmp9_xwjsi8
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tokio = { version = "1.36", features = ["full"] }
+chrono = "0.4"
+base64 = "0.21"
+hmac = "0.12"
+sha2 = "0.10"
+anyhow = "1.0"
+url = "2.4"
+hyper = { version = "1.2", features = ["full"] }
+hyper-util = { version = "0.1", features = ["full"] }
+hyper-rustls = "0.26"
+tower = { version = "0.4", features = ["full"] }
+governor = "0.6"
+tokio-tungstenite = "0.20"
+futures = "0.3"
+
+WRITING: config.rs -> /tmp/tmp9_xwjsi8/src/config.rs
+WRITING: error.rs -> /tmp/tmp9_xwjsi8/src/error.rs
+WRITING: http/signing.rs -> /tmp/tmp9_xwjsi8/src/http/signing.rs
+WRITING: http/client.rs -> /tmp/tmp9_xwjsi8/src/http/client.rs
+WRITING: parsing/models.rs -> /tmp/tmp9_xwjsi8/src/parsing/models.rs
+WRITING: websocket/client.rs -> /tmp/tmp9_xwjsi8/src/websocket/client.rs
+WRITING: python/mod.rs -> /tmp/tmp9_xwjsi8/src/python/mod.rs
+
+--- NEW CHECK ---
+ROOT: /tmp/tmp3_kc84gw
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tokio = { version = "1.36", features = ["full"] }
+chrono = "0.4"
+base64 = "0.21"
+hmac = "0.12"
+sha2 = "0.10"
+anyhow = "1.0"
+url = "2.4"
+hyper = { version = "1.2", features = ["full"] }
+hyper-util = { version = "0.1", features = ["full"] }
+hyper-rustls = "0.26"
+tower = { version = "0.4", features = ["full"] }
+governor = "0.6"
+tokio-tungstenite = "0.20"
+futures = "0.3"
+
+WRITING: config.rs -> /tmp/tmp3_kc84gw/src/config.rs
+WRITING: error.rs -> /tmp/tmp3_kc84gw/src/error.rs
+WRITING: http/signing.rs -> /tmp/tmp3_kc84gw/src/http/signing.rs
+WRITING: http/client.rs -> /tmp/tmp3_kc84gw/src/http/client.rs
+WRITING: parsing/models.rs -> /tmp/tmp3_kc84gw/src/parsing/models.rs
+WRITING: websocket/client.rs -> /tmp/tmp3_kc84gw/src/websocket/client.rs
+WRITING: python/mod.rs -> /tmp/tmp3_kc84gw/src/python/mod.rs
+
+--- NEW CHECK ---
+ROOT: /tmp/tmpss8jlcsq
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tokio = { version = "1.36", features = ["full"] }
+chrono = "0.4"
+base64 = "0.21"
+hmac = "0.12"
+sha2 = "0.10"
+anyhow = "1.0"
+url = "2.4"
+hyper = { version = "1.2", features = ["full"] }
+hyper-util = { version = "0.1", features = ["full"] }
+hyper-rustls = "0.26"
+tower = { version = "0.4", features = ["full"] }
+governor = "0.6"
+tokio-tungstenite = "0.20"
+futures = "0.3"
+
+WRITING: config.rs -> /tmp/tmpss8jlcsq/src/config.rs
+WRITING: error.rs -> /tmp/tmpss8jlcsq/src/error.rs
+WRITING: http/signing.rs -> /tmp/tmpss8jlcsq/src/http/signing.rs
+WRITING: http/client.rs -> /tmp/tmpss8jlcsq/src/http/client.rs
+WRITING: parsing/models.rs -> /tmp/tmpss8jlcsq/src/parsing/models.rs
+WRITING: websocket/client.rs -> /tmp/tmpss8jlcsq/src/websocket/client.rs
+WRITING: python/mod.rs -> /tmp/tmpss8jlcsq/src/python/mod.rs
+
+--- NEW CHECK ---
+ROOT: /tmp/tmp8j8u9hz6
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tokio = { version = "1.36", features = ["full"] }
+chrono = "0.4"
+base64 = "0.21"
+hmac = "0.12"
+sha2 = "0.10"
+anyhow = "1.0"
+url = "2.4"
+hyper = { version = "1.2", features = ["full"] }
+hyper-util = { version = "0.1", features = ["full"] }
+hyper-rustls = "0.26"
+tower = { version = "0.4", features = ["full"] }
+governor = "0.6"
+tokio-tungstenite = "0.20"
+futures = "0.3"
+
+WRITING: common/consts.rs -> /tmp/tmp8j8u9hz6/src/common/consts.rs
+WRITING: common/urls.rs -> /tmp/tmp8j8u9hz6/src/common/urls.rs
+WRITING: config.rs -> /tmp/tmp8j8u9hz6/src/config.rs
+WRITING: error.rs -> /tmp/tmp8j8u9hz6/src/error.rs
+WRITING: http/signing.rs -> /tmp/tmp8j8u9hz6/src/http/signing.rs
+WRITING: http/client.rs -> /tmp/tmp8j8u9hz6/src/http/client.rs
+WRITING: parsing/models.rs -> /tmp/tmp8j8u9hz6/src/parsing/models.rs
+WRITING: websocket/client.rs -> /tmp/tmp8j8u9hz6/src/websocket/client.rs
+WRITING: python/mod.rs -> /tmp/tmp8j8u9hz6/src/python/mod.rs
+WRITING: python/urls.rs -> /tmp/tmp8j8u9hz6/src/python/urls.rs
+
+--- NEW CHECK ---
+ROOT: /tmp/tmpr9zlkghz
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tokio = { version = "1.36", features = ["full"] }
+chrono = "0.4"
+base64 = "0.21"
+hmac = "0.12"
+sha2 = "0.10"
+anyhow = "1.0"
+url = "2.4"
+hyper = { version = "1.2", features = ["full"] }
+hyper-util = { version = "0.1", features = ["full"] }
+hyper-rustls = "0.26"
+tower = { version = "0.4", features = ["full"] }
+governor = "0.6"
+tokio-tungstenite = "0.20"
+futures = "0.3"
+
+WRITING: common/consts.rs -> /tmp/tmpr9zlkghz/src/common/consts.rs
+WRITING: common/urls.rs -> /tmp/tmpr9zlkghz/src/common/urls.rs
+WRITING: config.rs -> /tmp/tmpr9zlkghz/src/config.rs
+WRITING: error.rs -> /tmp/tmpr9zlkghz/src/error.rs
+WRITING: http/signing.rs -> /tmp/tmpr9zlkghz/src/http/signing.rs
+WRITING: http/client.rs -> /tmp/tmpr9zlkghz/src/http/client.rs
+WRITING: parsing/models.rs -> /tmp/tmpr9zlkghz/src/parsing/models.rs
+WRITING: websocket/client.rs -> /tmp/tmpr9zlkghz/src/websocket/client.rs
+WRITING: python/mod.rs -> /tmp/tmpr9zlkghz/src/python/mod.rs
+WRITING: python/urls.rs -> /tmp/tmpr9zlkghz/src/python/urls.rs
+
+--- NEW CHECK ---
+ROOT: /tmp/tmphz43xydo
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tokio = { version = "1.36", features = ["full"] }
+chrono = "0.4"
+base64 = "0.21"
+hmac = "0.12"
+sha2 = "0.10"
+anyhow = "1.0"
+url = "2.4"
+hyper = { version = "1.2", features = ["full"] }
+hyper-util = { version = "0.1", features = ["full"] }
+hyper-rustls = "0.26"
+tower = { version = "0.4", features = ["full"] }
+governor = "0.6"
+tokio-tungstenite = "0.20"
+futures = "0.3"
+
+WRITING: common/consts.rs -> /tmp/tmphz43xydo/src/common/consts.rs
+WRITING: common/urls.rs -> /tmp/tmphz43xydo/src/common/urls.rs
+WRITING: config.rs -> /tmp/tmphz43xydo/src/config.rs
+WRITING: error.rs -> /tmp/tmphz43xydo/src/error.rs
+WRITING: http/client.rs -> /tmp/tmphz43xydo/src/http/client.rs
+WRITING: http/signing.rs -> /tmp/tmphz43xydo/src/http/signing.rs
+WRITING: websocket/client.rs -> /tmp/tmphz43xydo/src/websocket/client.rs
+WRITING: parsing/models.rs -> /tmp/tmphz43xydo/src/parsing/models.rs
+WRITING: python/mod.rs -> /tmp/tmphz43xydo/src/python/mod.rs
+WRITING: python/urls.rs -> /tmp/tmphz43xydo/src/python/urls.rs
+CRITICAL CARGO ERRORS:
+error: could not compile `adapter_check` (lib) due to 8 previous errors
+
+--- NEW CHECK ---
+ROOT: /tmp/tmpwskab9c_
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tokio = { version = "1.36", features = ["full"] }
+chrono = "0.4"
+base64 = "0.21"
+hmac = "0.12"
+sha2 = "0.10"
+anyhow = "1.0"
+url = "2.4"
+hyper = { version = "1.2", features = ["full"] }
+hyper-util = { version = "0.1", features = ["full"] }
+hyper-rustls = "0.26"
+tower = { version = "0.4", features = ["full"] }
+governor = "0.6"
+tokio-tungstenite = "0.20"
+futures = "0.3"
+
+WRITING: common/consts.rs -> /tmp/tmpwskab9c_/src/common/consts.rs
+WRITING: common/urls.rs -> /tmp/tmpwskab9c_/src/common/urls.rs
+WRITING: config.rs -> /tmp/tmpwskab9c_/src/config.rs
+WRITING: error.rs -> /tmp/tmpwskab9c_/src/error.rs
+WRITING: http/signing.rs -> /tmp/tmpwskab9c_/src/http/signing.rs
+WRITING: http/client.rs -> /tmp/tmpwskab9c_/src/http/client.rs
+WRITING: websocket/client.rs -> /tmp/tmpwskab9c_/src/websocket/client.rs
+WRITING: parsing/models.rs -> /tmp/tmpwskab9c_/src/parsing/models.rs
+WRITING: python/mod.rs -> /tmp/tmpwskab9c_/src/python/mod.rs
+WRITING: python/urls.rs -> /tmp/tmpwskab9c_/src/python/urls.rs
+CRITICAL CARGO ERRORS:
+error: could not compile `adapter_check` (lib) due to 1 previous error
+
+--- NEW CHECK ---
+ROOT: /tmp/tmpatlhe7d4
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tokio = { version = "1.36", features = ["full"] }
+chrono = "0.4"
+base64 = "0.21"
+hmac = "0.12"
+sha2 = "0.10"
+anyhow = "1.0"
+url = "2.4"
+hyper = { version = "1.2", features = ["full"] }
+hyper-util = { version = "0.1", features = ["full"] }
+hyper-rustls = "0.26"
+tower = { version = "0.4", features = ["full"] }
+governor = "0.6"
+tokio-tungstenite = "0.20"
+futures = "0.3"
+
+WRITING: common/consts.rs -> /tmp/tmpatlhe7d4/src/common/consts.rs
+WRITING: common/urls.rs -> /tmp/tmpatlhe7d4/src/common/urls.rs
+WRITING: config.rs -> /tmp/tmpatlhe7d4/src/config.rs
+WRITING: error.rs -> /tmp/tmpatlhe7d4/src/error.rs
+WRITING: http/signing.rs -> /tmp/tmpatlhe7d4/src/http/signing.rs
+WRITING: http/client.rs -> /tmp/tmpatlhe7d4/src/http/client.rs
+WRITING: websocket/client.rs -> /tmp/tmpatlhe7d4/src/websocket/client.rs
+WRITING: parsing/models.rs -> /tmp/tmpatlhe7d4/src/parsing/models.rs
+WRITING: python/mod.rs -> /tmp/tmpatlhe7d4/src/python/mod.rs
+WRITING: python/urls.rs -> /tmp/tmpatlhe7d4/src/python/urls.rs
+CRITICAL CARGO ERRORS:
+error: could not compile `adapter_check` (lib) due to 1 previous error
+
+--- NEW CHECK ---
+ROOT: /tmp/tmpro50yvxf
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tokio = { version = "1.36", features = ["full"] }
+chrono = "0.4"
+base64 = "0.21"
+hmac = "0.12"
+sha2 = "0.10"
+anyhow = "1.0"
+url = "2.4"
+hyper = { version = "1.2", features = ["full"] }
+hyper-util = { version = "0.1", features = ["full"] }
+hyper-rustls = "0.26"
+tower = { version = "0.4", features = ["full"] }
+governor = "0.6"
+tokio-tungstenite = "0.20"
+futures = "0.3"
+
+WRITING: common/consts.rs -> /tmp/tmpro50yvxf/src/common/consts.rs
+WRITING: common/urls.rs -> /tmp/tmpro50yvxf/src/common/urls.rs
+WRITING: config.rs -> /tmp/tmpro50yvxf/src/config.rs
+WRITING: error.rs -> /tmp/tmpro50yvxf/src/error.rs
+WRITING: http/signing.rs -> /tmp/tmpro50yvxf/src/http/signing.rs
+WRITING: http/client.rs -> /tmp/tmpro50yvxf/src/http/client.rs
+WRITING: websocket/client.rs -> /tmp/tmpro50yvxf/src/websocket/client.rs
+WRITING: parsing/models.rs -> /tmp/tmpro50yvxf/src/parsing/models.rs
+WRITING: python/mod.rs -> /tmp/tmpro50yvxf/src/python/mod.rs
+WRITING: python/urls.rs -> /tmp/tmpro50yvxf/src/python/urls.rs
+CRITICAL CARGO ERRORS:
+error: could not compile `adapter_check` (lib) due to 1 previous error
+
+--- NEW CHECK ---
+ROOT: /tmp/tmp1d2jxtb2
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tokio = { version = "1.36", features = ["full"] }
+chrono = "0.4"
+base64 = "0.21"
+hmac = "0.12"
+sha2 = "0.10"
+anyhow = "1.0"
+url = "2.4"
+hyper = { version = "1.2", features = ["full"] }
+hyper-util = { version = "0.1", features = ["full"] }
+hyper-rustls = "0.26"
+tower = { version = "0.4", features = ["full"] }
+governor = "0.6"
+tokio-tungstenite = "0.20"
+futures = "0.3"
+
+WRITING: lib.rs -> /tmp/tmp1d2jxtb2/src/lib.rs
+WRITING: common/consts.rs -> /tmp/tmp1d2jxtb2/src/common/consts.rs
+WRITING: common/urls.rs -> /tmp/tmp1d2jxtb2/src/common/urls.rs
+WRITING: config.rs -> /tmp/tmp1d2jxtb2/src/config.rs
+WRITING: error.rs -> /tmp/tmp1d2jxtb2/src/error.rs
+WRITING: http/signing.rs -> /tmp/tmp1d2jxtb2/src/http/signing.rs
+WRITING: http/client.rs -> /tmp/tmp1d2jxtb2/src/http/client.rs
+WRITING: parsing/models.rs -> /tmp/tmp1d2jxtb2/src/parsing/models.rs
+WRITING: websocket/client.rs -> /tmp/tmp1d2jxtb2/src/websocket/client.rs
+WRITING: python/mod.rs -> /tmp/tmp1d2jxtb2/src/python/mod.rs
+WRITING: python/urls.rs -> /tmp/tmp1d2jxtb2/src/python/urls.rs
+CRITICAL CARGO ERRORS:
+error[E0583]: file not found for module `common`
+error[E0583]: file not found for module `http`
+error[E0583]: file not found for module `parsing`
+error[E0583]: file not found for module `websocket`
+error: could not compile `adapter_check` (lib) due to 5 previous errors; 4 warnings emitted
+
+--- NEW CHECK ---
+ROOT: /tmp/tmpfs9_a1sk
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tokio = { version = "1.36", features = ["full"] }
+chrono = "0.4"
+base64 = "0.21"
+hmac = "0.12"
+sha2 = "0.10"
+anyhow = "1.0"
+url = "2.4"
+hyper = { version = "1.2", features = ["full"] }
+hyper-util = { version = "0.1", features = ["full"] }
+hyper-rustls = "0.26"
+tower = { version = "0.4", features = ["full"] }
+governor = "0.6"
+tokio-tungstenite = "0.20"
+futures = "0.3"
+
+WRITING: lib.rs -> /tmp/tmpfs9_a1sk/src/lib.rs
+WRITING: common/consts.rs -> /tmp/tmpfs9_a1sk/src/common/consts.rs
+WRITING: common/urls.rs -> /tmp/tmpfs9_a1sk/src/common/urls.rs
+WRITING: config.rs -> /tmp/tmpfs9_a1sk/src/config.rs
+WRITING: error.rs -> /tmp/tmpfs9_a1sk/src/error.rs
+WRITING: http/signing.rs -> /tmp/tmpfs9_a1sk/src/http/signing.rs
+WRITING: http/client.rs -> /tmp/tmpfs9_a1sk/src/http/client.rs
+WRITING: parsing/models.rs -> /tmp/tmpfs9_a1sk/src/parsing/models.rs
+WRITING: websocket/client.rs -> /tmp/tmpfs9_a1sk/src/websocket/client.rs
+WRITING: python/mod.rs -> /tmp/tmpfs9_a1sk/src/python/mod.rs
+WRITING: python/urls.rs -> /tmp/tmpfs9_a1sk/src/python/urls.rs
+CRITICAL CARGO ERRORS:
+24 | use tower_governor::{error::RateLimitExceeded, Gov...
+24 | use tower_governor::{error::RateLimitExceeded, Gov...
+error[E0603]: module `error` is private
+ 65 | ...::new(hyper::error::Kind::Uri(e.to_string())))
+error[E0603]: module `error` is private
+ 91 | ...::new(hyper::error::Kind::Io(e.to_string())))
+error[E0603]: module `error` is private
+ 97 | ...      hyper::error::Kind::Io(e.to_string()),
+error[E0603]: module `error` is private
+106 | ...::new(hyper::error::Kind::Io(e.to_string())))
+error[E0603]: module `error` is private
+118 |                 hyper::error::Kind::Io(format!(
+error[E0624]: associated function `new` is private
+ 65 | ...Error::new(hyper::error::Kind::Uri(e.to_string...
+65 | ...er::error::Kind::Uri(e.to_string())))
+   |                     ^^^ variant or associated item not found in `hyper::error::Kind`
+error[E0282]: type annotations needed
+65 | ...::Error::new(hyper::error::Kind::Uri(e.to_strin...
+error[E0624]: associated function `new` is private
+ 91 | ...Error::new(hyper::error::Kind::Io(e.to_string(...
+error[E0618]: expected function, found `hyper::error::Kind`
+91 | ...ew(hyper::error::Kind::Io(e.to_string())))
+error[E0624]: associated function `new` is private
+error[E0618]: expected function, found `hyper::error::Kind`
+97 | ...   hyper::error::Kind::Io(e.to_string()),
+error[E0277]: `?` couldn't convert the error to `LighterError`
+error[E0282]: type annotations needed
+error[E0624]: associated function `new` is private
+106 | ...Error::new(hyper::error::Kind::Io(e.to_string(...
+error[E0618]: expected function, found `hyper::error::Kind`
+106 | ...ew(hyper::error::Kind::Io(e.to_string())))
+error[E0624]: associated function `new` is private
+error[E0618]: expected function, found `hyper::error::Kind`
+118 |                   hyper::error::Kind::Io(format!(
+error[E0308]: mismatched types
+error: could not compile `adapter_check` (lib) due to 27 previous errors; 16 warnings emitted
+
+--- NEW CHECK ---
+ROOT: /tmp/tmpeu6x5h2l
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tokio = { version = "1.36", features = ["full"] }
+chrono = "0.4"
+base64 = "0.21"
+hmac = "0.12"
+sha2 = "0.10"
+anyhow = "1.0"
+url = "2.4"
+hyper = { version = "1.2", features = ["full"] }
+hyper-util = { version = "0.1", features = ["full"] }
+hyper-rustls = "0.26"
+tower = { version = "0.4", features = ["full"] }
+governor = "0.6"
+tokio-tungstenite = "0.20"
+futures = "0.3"
+
+WRITING: lib.rs -> /tmp/tmpeu6x5h2l/src/lib.rs
+WRITING: common/consts.rs -> /tmp/tmpeu6x5h2l/src/common/consts.rs
+WRITING: common/urls.rs -> /tmp/tmpeu6x5h2l/src/common/urls.rs
+WRITING: config.rs -> /tmp/tmpeu6x5h2l/src/config.rs
+WRITING: error.rs -> /tmp/tmpeu6x5h2l/src/error.rs
+WRITING: http/signing.rs -> /tmp/tmpeu6x5h2l/src/http/signing.rs
+WRITING: http/client.rs -> /tmp/tmpeu6x5h2l/src/http/client.rs
+WRITING: parsing/models.rs -> /tmp/tmpeu6x5h2l/src/parsing/models.rs
+WRITING: websocket/client.rs -> /tmp/tmpeu6x5h2l/src/websocket/client.rs
+WRITING: python/mod.rs -> /tmp/tmpeu6x5h2l/src/python/mod.rs
+WRITING: python/urls.rs -> /tmp/tmpeu6x5h2l/src/python/urls.rs
+CRITICAL CARGO ERRORS:
+error[E0107]: struct takes at least 3 generic arguments but 2 generic arguments were supplied
+error[E0624]: associated function `new` is private
+error[E0624]: associated function `new` is private
+error[E0282]: type annotations needed
+error[E0282]: type annotations needed
+error[E0277]: the trait bound `fn(_) -> ... {...::bind::<_>}: Executor<...>` is not satisfied
+error: could not compile `adapter_check` (lib) due to 14 previous errors; 7 warnings emitted
+
+--- NEW CHECK ---
+ROOT: /tmp/tmplur8zdpu
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tokio = { version = "1.36", features = ["full"] }
+chrono = "0.4"
+base64 = "0.21"
+hmac = "0.12"
+sha2 = "0.10"
+anyhow = "1.0"
+url = "2.4"
+hyper = { version = "1.2", features = ["full"] }
+hyper-util = { version = "0.1", features = ["full"] }
+hyper-rustls = "0.26"
+tower = { version = "0.4", features = ["full"] }
+governor = "0.6"
+tokio-tungstenite = "0.20"
+futures = "0.3"
+
+WRITING: lib.rs -> /tmp/tmplur8zdpu/src/lib.rs
+WRITING: common/consts.rs -> /tmp/tmplur8zdpu/src/common/consts.rs
+WRITING: common/urls.rs -> /tmp/tmplur8zdpu/src/common/urls.rs
+WRITING: config.rs -> /tmp/tmplur8zdpu/src/config.rs
+WRITING: error.rs -> /tmp/tmplur8zdpu/src/error.rs
+WRITING: http/client.rs -> /tmp/tmplur8zdpu/src/http/client.rs
+WRITING: http/signing.rs -> /tmp/tmplur8zdpu/src/http/signing.rs
+WRITING: websocket/client.rs -> /tmp/tmplur8zdpu/src/websocket/client.rs
+WRITING: parsing/models.rs -> /tmp/tmplur8zdpu/src/parsing/models.rs
+WRITING: python/mod.rs -> /tmp/tmplur8zdpu/src/python/mod.rs
+WRITING: python/urls.rs -> /tmp/tmplur8zdpu/src/python/urls.rs
+CRITICAL CARGO ERRORS:
+error[E0282]: type annotations needed
+error[E0282]: type annotations needed
+error[E0282]: type annotations needed
+error[E0282]: type annotations needed
+error[E0282]: type annotations needed
+error[E0282]: type annotations needed
+error[E0282]: type annotations needed
+error[E0282]: type annotations needed
+error: could not compile `adapter_check` (lib) due to 11 previous errors; 1 warning emitted
+
+--- NEW CHECK ---
+ROOT: /tmp/tmp6zwceu7i
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tokio = { version = "1.36", features = ["full"] }
+chrono = "0.4"
+base64 = "0.21"
+hmac = "0.12"
+sha2 = "0.10"
+anyhow = "1.0"
+url = "2.4"
+hyper = { version = "1.2", features = ["full"] }
+hyper-util = { version = "0.1", features = ["full"] }
+hyper-rustls = "0.26"
+tower = { version = "0.4", features = ["full"] }
+governor = "0.6"
+tokio-tungstenite = "0.20"
+futures = "0.3"
+
+WRITING: src/lib.rs -> /tmp/tmp6zwceu7i/src/lib.rs
+WRITING: src/common/consts.rs -> /tmp/tmp6zwceu7i/src/common/consts.rs
+WRITING: src/common/urls.rs -> /tmp/tmp6zwceu7i/src/common/urls.rs
+WRITING: src/config.rs -> /tmp/tmp6zwceu7i/src/config.rs
+WRITING: src/error.rs -> /tmp/tmp6zwceu7i/src/error.rs
+WRITING: src/http/signing.rs -> /tmp/tmp6zwceu7i/src/http/signing.rs
+WRITING: src/http/client.rs -> /tmp/tmp6zwceu7i/src/http/client.rs
+WRITING: src/parsing/models.rs -> /tmp/tmp6zwceu7i/src/parsing/models.rs
+WRITING: src/websocket/client.rs -> /tmp/tmp6zwceu7i/src/websocket/client.rs
+WRITING: src/python/mod.rs -> /tmp/tmp6zwceu7i/src/python/mod.rs
+WRITING: src/python/urls.rs -> /tmp/tmp6zwceu7i/src/python/urls.rs
+CRITICAL CARGO ERRORS:
+error[E0282]: type annotations needed
+error[E0282]: type annotations needed
+error[E0282]: type annotations needed
+error[E0282]: type annotations needed
+error[E0282]: type annotations needed
+error[E0282]: type annotations needed
+error[E0282]: type annotations needed
+error: could not compile `adapter_check` (lib) due to 17 previous errors; 5 warnings emitted
+
+--- NEW CHECK ---
+ROOT: /tmp/tmpqx6uvlqo
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tokio = { version = "1.36", features = ["full"] }
+chrono = "0.4"
+base64 = "0.21"
+hmac = "0.12"
+sha2 = "0.10"
+anyhow = "1.0"
+url = "2.4"
+hyper = { version = "1.2", features = ["full"] }
+hyper-util = { version = "0.1", features = ["full"] }
+hyper-rustls = "0.26"
+tower = { version = "0.4", features = ["full"] }
+governor = "0.6"
+tokio-tungstenite = "0.20"
+futures = "0.3"
+
+WRITING: src/lib.rs -> /tmp/tmpqx6uvlqo/src/lib.rs
+WRITING: src/common/consts.rs -> /tmp/tmpqx6uvlqo/src/common/consts.rs
+WRITING: src/common/urls.rs -> /tmp/tmpqx6uvlqo/src/common/urls.rs
+WRITING: src/config.rs -> /tmp/tmpqx6uvlqo/src/config.rs
+WRITING: src/error.rs -> /tmp/tmpqx6uvlqo/src/error.rs
+WRITING: src/http/signing.rs -> /tmp/tmpqx6uvlqo/src/http/signing.rs
+WRITING: src/http/client.rs -> /tmp/tmpqx6uvlqo/src/http/client.rs
+WRITING: src/parsing/models.rs -> /tmp/tmpqx6uvlqo/src/parsing/models.rs
+WRITING: src/websocket/client.rs -> /tmp/tmpqx6uvlqo/src/websocket/client.rs
+WRITING: src/python/mod.rs -> /tmp/tmpqx6uvlqo/src/python/mod.rs
+WRITING: src/python/urls.rs -> /tmp/tmpqx6uvlqo/src/python/urls.rs
+CRITICAL CARGO ERRORS:
+error[E0282]: type annotations needed
+error[E0282]: type annotations needed
+error[E0282]: type annotations needed
+error[E0282]: type annotations needed
+error[E0282]: type annotations needed
+error[E0282]: type annotations needed
+error[E0282]: type annotations needed
+error: could not compile `adapter_check` (lib) due to 17 previous errors; 5 warnings emitted
+
+--- NEW CHECK ---
+ROOT: /tmp/tmp2oyoq0cx
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tokio = { version = "1.36", features = ["full"] }
+chrono = "0.4"
+base64 = "0.21"
+hmac = "0.12"
+sha2 = "0.10"
+anyhow = "1.0"
+url = "2.4"
+hyper = { version = "1.2", features = ["full"] }
+hyper-util = { version = "0.1", features = ["full"] }
+hyper-rustls = "0.26"
+tower = { version = "0.4", features = ["full"] }
+governor = "0.6"
+tokio-tungstenite = "0.20"
+futures = "0.3"
+
+WRITING: lib.rs -> /tmp/tmp2oyoq0cx/src/lib.rs
+WRITING: common/consts.rs -> /tmp/tmp2oyoq0cx/src/common/consts.rs
+WRITING: common/urls.rs -> /tmp/tmp2oyoq0cx/src/common/urls.rs
+WRITING: config.rs -> /tmp/tmp2oyoq0cx/src/config.rs
+WRITING: credential.rs -> /tmp/tmp2oyoq0cx/src/credential.rs
+WRITING: error.rs -> /tmp/tmp2oyoq0cx/src/error.rs
+WRITING: http/signing.rs -> /tmp/tmp2oyoq0cx/src/http/signing.rs
+WRITING: http/client.rs -> /tmp/tmp2oyoq0cx/src/http/client.rs
+WRITING: parsing/models.rs -> /tmp/tmp2oyoq0cx/src/parsing/models.rs
+WRITING: websocket/client.rs -> /tmp/tmp2oyoq0cx/src/websocket/client.rs
+WRITING: python/mod.rs -> /tmp/tmp2oyoq0cx/src/python/mod.rs
+WRITING: python/urls.rs -> /tmp/tmp2oyoq0cx/src/python/urls.rs
+CRITICAL CARGO ERRORS:
+error[E0107]: struct takes at least 3 generic arguments but 1 generic argument was supplied
+error[E0282]: type annotations needed
+error[E0282]: type annotations needed
+error[E0282]: type annotations needed
+error[E0282]: type annotations needed
+error[E0282]: type annotations needed
+error[E0277]: the size for values of type `[u8]` cannot be known at compilation time
+error[E0277]: the size for values of type `[u8]` cannot be known at compilation time
+error[E0277]: the size for values of type `[u8]` cannot be known at compilation time
+error[E0277]: the size for values of type `[u8]` cannot be known at compilation time
+error[E0277]: the size for values of type `[u8]` cannot be known at compilation time
+error[E0277]: the size for values of type `[u8]` cannot be known at compilation time
+error[E0277]: the size for values of type `[u8]` cannot be known at compilation time
+error[E0277]: the size for values of type `[u8]` cannot be known at compilation time
+error[E0282]: type annotations needed
+error: could not compile `adapter_check` (lib) due to 21 previous errors; 3 warnings emitted
+
+--- NEW CHECK ---
+ROOT: /tmp/tmps_vb3wxj
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tokio = { version = "1.36", features = ["full"] }
+chrono = "0.4"
+base64 = "0.21"
+hmac = "0.12"
+sha2 = "0.10"
+anyhow = "1.0"
+url = "2.4"
+hyper = { version = "1.2", features = ["full"] }
+hyper-util = { version = "0.1", features = ["full"] }
+hyper-rustls = "0.26"
+tower = { version = "0.4", features = ["full"] }
+governor = "0.6"
+tokio-tungstenite = "0.20"
+futures = "0.3"
+
+WRITING: lib.rs -> /tmp/tmps_vb3wxj/src/lib.rs
+WRITING: common/consts.rs -> /tmp/tmps_vb3wxj/src/common/consts.rs
+WRITING: common/urls.rs -> /tmp/tmps_vb3wxj/src/common/urls.rs
+WRITING: config.rs -> /tmp/tmps_vb3wxj/src/config.rs
+WRITING: credential.rs -> /tmp/tmps_vb3wxj/src/credential.rs
+WRITING: error.rs -> /tmp/tmps_vb3wxj/src/error.rs
+WRITING: http/signing.rs -> /tmp/tmps_vb3wxj/src/http/signing.rs
+WRITING: http/client.rs -> /tmp/tmps_vb3wxj/src/http/client.rs
+WRITING: parsing/models.rs -> /tmp/tmps_vb3wxj/src/parsing/models.rs
+WRITING: websocket/client.rs -> /tmp/tmps_vb3wxj/src/websocket/client.rs
+WRITING: python/mod.rs -> /tmp/tmps_vb3wxj/src/python/mod.rs
+WRITING: python/urls.rs -> /tmp/tmps_vb3wxj/src/python/urls.rs
+CRITICAL CARGO ERRORS:
+error[E0107]: struct takes at least 3 generic arguments but 1 generic argument was supplied
+error[E0282]: type annotations needed
+error[E0282]: type annotations needed
+error[E0282]: type annotations needed
+error[E0282]: type annotations needed
+error[E0282]: type annotations needed
+error[E0277]: the size for values of type `[u8]` cannot be known at compilation time
+error[E0277]: the size for values of type `[u8]` cannot be known at compilation time
+error[E0277]: the size for values of type `[u8]` cannot be known at compilation time
+error[E0277]: the size for values of type `[u8]` cannot be known at compilation time
+error[E0277]: the size for values of type `[u8]` cannot be known at compilation time
+error[E0277]: the size for values of type `[u8]` cannot be known at compilation time
+error[E0277]: the size for values of type `[u8]` cannot be known at compilation time
+error[E0277]: the size for values of type `[u8]` cannot be known at compilation time
+error[E0282]: type annotations needed
+error: could not compile `adapter_check` (lib) due to 21 previous errors; 3 warnings emitted
+
+--- NEW CHECK ---
+ROOT: /tmp/tmpw78k997l
+CARGO.toml:
+[package]
+name = "adapter_check"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tokio = { version = "1.36", features = ["full"] }
+chrono = "0.4"
+base64 = "0.21"
+hmac = "0.12"
+sha2 = "0.10"
+hex = "0.4"
+anyhow = "1.0"
+url = "2.4"
+http = "1.0"
+bytes = "1.5"
+hyper = { version = "1.2", features = ["full"] }
+hyper-util = { version = "0.1", features = ["full"] }
+hyper-rustls = "0.26"
+tower = { version = "0.4", features = ["full"] }
+governor = "0.6"
+tokio-tungstenite = "0.20"
+futures = "0.3"
+
+WRITING: lib.rs -> /tmp/tmpw78k997l/src/lib.rs
+WRITING: common/consts.rs -> /tmp/tmpw78k997l/src/common/consts.rs
+WRITING: common/urls.rs -> /tmp/tmpw78k997l/src/common/urls.rs
+WRITING: config.rs -> /tmp/tmpw78k997l/src/config.rs
+WRITING: credential.rs -> /tmp/tmpw78k997l/src/credential.rs
+WRITING: error.rs -> /tmp/tmpw78k997l/src/error.rs
+WRITING: http/signing.rs -> /tmp/tmpw78k997l/src/http/signing.rs
+WRITING: http/client.rs -> /tmp/tmpw78k997l/src/http/client.rs
+WRITING: parsing/models.rs -> /tmp/tmpw78k997l/src/parsing/models.rs
+WRITING: websocket/client.rs -> /tmp/tmpw78k997l/src/websocket/client.rs
+WRITING: python/mod.rs -> /tmp/tmpw78k997l/src/python/mod.rs
+WRITING: python/urls.rs -> /tmp/tmpw78k997l/src/python/urls.rs
+CRITICAL CARGO ERRORS:
+error[E0107]: struct takes at least 3 generic arguments but 1 generic argument was supplied
+error[E0282]: type annotations needed
+error[E0282]: type annotations needed
+error[E0282]: type annotations needed
+error[E0282]: type annotations needed
+error[E0282]: type annotations needed
+error: could not compile `adapter_check` (lib) due to 10 previous errors; 4 warnings emitted

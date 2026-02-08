@@ -1,0 +1,105 @@
+```yaml
+exchange_identity:
+  exchange_name: Lighter
+  venue_id: LIGHTER
+  exchange_type: DEX
+market_coverage:
+  spot_supported: true
+  perps_supported: false
+  futures_supported: false
+  options_supported: false
+rest_api:
+  rest_base_url: https://api.lighter.xyz
+  api_version: v1
+  rate_limits:
+    - window: 1m
+      limit: 120
+authentication:
+  auth_type: API_KEY
+  headers:
+    - x-lighter-chain-id
+    - x-api-key
+    - x-timestamp
+    - x-signature
+  timestamp_format: milliseconds
+  signature_payload: timestamp + method + requestPath + body
+  hash_algo: SHA256
+  encoding: hex
+  passphrase_required: false
+rest_endpoints:
+  - name: Get Tickers
+    path: /v1/tickers
+    method: GET
+    auth_required: false
+    request_fields:
+      - chainId
+    response_fields:
+      - symbol
+      - lastPrice
+      - volume
+      - priceStep
+      - sizeStep
+  - name: Get Orderbook
+    path: /v1/orderbook
+    method: GET
+    auth_required: false
+    request_fields:
+      - chainId
+      - symbol
+    response_fields:
+      - asks
+      - bids
+      - timestamp
+  - name: Create Order
+    path: /v1/order
+    method: POST
+    auth_required: true
+    request_fields:
+      - chainId
+      - symbol
+      - side
+      - type
+      - price
+      - quantity
+      - clientOrderId
+      - tif
+    response_fields:
+      - orderId
+      - status
+      - symbol
+websocket_public:
+  ws_public_url: wss://api.lighter.xyz/ws
+  channels:
+    - name: orderbook
+      description: Real-time orderbook updates
+    - name: trades
+      description: Real-time trade updates
+  heartbeat_interval_sec: 30
+websocket_private:
+  ws_private_url: wss://api.lighter.xyz/ws
+  auth_required: true
+  order_updates: true
+  fills: true
+  balance_updates: true
+order_model:
+  order_types:
+    - LIMIT
+    - MARKET
+  order_states:
+    - NEW
+    - PARTIALLY_FILLED
+    - FILLED
+    - CANCELLED
+    - REJECTED
+    - EXPIRED
+  partial_fill_behavior: STANDARD
+  cancel_behavior: GTC
+instrument_metadata:
+  instrument_id_format: BASE-QUOTE
+  price_precision: 8
+  quantity_precision: 8
+  contract_size: 1
+special_notes:
+  - Lighter is a decentralized exchange (DEX) running on Polygon.
+  - The x-lighter-chain-id header is required for all requests.
+```

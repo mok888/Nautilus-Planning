@@ -1,0 +1,66 @@
+exchange_identity:
+  exchange_name: string
+  venue_id: string
+  exchange_type: enum[CEX, DEX]
+
+market_coverage:
+  spot_supported: bool
+  perps_supported: bool
+  futures_supported: bool | UNKNOWN
+  options_supported: bool | UNKNOWN
+
+rest_api:
+  rest_base_url: string
+  api_version: string
+  rate_limits:
+    - rule: string
+
+authentication:
+  auth_type: enum[HMAC, JWT, WALLET]
+  headers:
+    - string
+  timestamp_format: string
+  signature_payload: string
+  hash_algo: string
+  encoding: string
+  passphrase_required: bool | UNKNOWN
+
+rest_endpoints:
+  - name: string
+    path: string
+    method: enum[GET, POST, DELETE]
+    auth_required: bool
+    request_fields:
+      - string
+    response_fields:
+      - string
+
+websocket_public:
+  ws_public_url: string
+  channels:
+    - string
+  heartbeat_interval_sec: int | UNKNOWN
+
+websocket_private:
+  ws_private_url: string
+  auth_required: bool
+  order_updates: bool
+  fills: bool
+  balance_updates: bool | UNKNOWN
+
+order_model:
+  order_types:
+    - enum[market, limit, stop, stop_limit]
+  order_states:
+    - string
+  partial_fill_behavior: string
+  cancel_behavior: string
+
+instrument_metadata:
+  instrument_id_format: string
+  price_precision: string
+  quantity_precision: string
+  contract_size: string | UNKNOWN
+
+special_notes:
+  - string

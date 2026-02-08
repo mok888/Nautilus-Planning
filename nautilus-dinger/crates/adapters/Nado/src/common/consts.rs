@@ -1,0 +1,1 @@
+tions even if a function is registere

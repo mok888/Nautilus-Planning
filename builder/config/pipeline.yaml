@@ -1,0 +1,18 @@
+llm:
+  extract:
+    provider: openai
+    model: gpt-4-turbo-preview
+    temperature: 0.0
+
+    cache: true
+
+  generate:
+    provider: openai
+    model: gpt-4-turbo-preview
+    temperature: 0.15
+
+    samples: 1
+    min_similarity: 0.97
+    max_attempts: 4
+    temperature_decay: 0.85
+    cache: true
