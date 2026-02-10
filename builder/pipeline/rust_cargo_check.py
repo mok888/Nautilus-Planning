@@ -1,3 +1,4 @@
+import os
 import subprocess
 import tempfile
 from pathlib import Path
@@ -5,7 +6,7 @@ from pathlib import Path
 from builder.pipeline.exceptions import CargoCheckError
 
 
-def run_cargo_check(rust_files: dict[str, str]) -> None:
+def run_cargo_check(rust_files: dict[str, str], *, strict: bool = False) -> None:
     # Filter for .rs files only, just in case
     rust_files = {k: v for k, v in rust_files.items() if k.endswith(".rs")}
     
@@ -109,12 +110,22 @@ futures = "0.3"
                         lib_f.write(f"#[allow(dead_code)] mod {f.name};\n")
 
         try:
+            env = os.environ.copy()
+            if strict:
+                extra_flags = "-D warnings -D missing_docs"
+                rustflags = env.get("RUSTFLAGS", "")
+                env["RUSTFLAGS"] = f"{rustflags} {extra_flags}".strip()
+
             result = subprocess.run(
                 ["cargo", "check"],
                 cwd=root,
                 capture_output=True,
                 text=True,
+                env=env,
             )
+
+            if strict and "warning:" in result.stderr:
+                raise CargoCheckError(result.stderr)
 
             if result.returncode != 0:
                 # Filter out unresolved import/crate errors which are expected without dependencies

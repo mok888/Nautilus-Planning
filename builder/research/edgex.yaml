@@ -1,0 +1,557 @@
+exchange_identity:
+  exchange_name: edgex
+  venue_id: EDGEX
+  exchange_type: DEX
+
+market_coverage:
+  spot_supported: false
+  perps_supported: true
+  futures_supported: false
+  options_supported: false
+
+rest_api:
+  rest_base_url: https://pro.edgex.exchange/api/
+  api_version: v1
+  rate_limits:
+    - rule: Per-account rate limits apply
+    - rule: Maximum 200 orders per user
+
+authentication:
+  auth_type: SIGNATURE
+  headers:
+    - X-edgeX-Api-Timestamp
+    - X-edgeX-Api-Signature
+  timestamp_format: MILLISECONDS
+  signature_payload: timestamp + HTTP_METHOD + request_path + sorted_query_params_or_body
+  hash_algo: ECDSA_SHA3
+  encoding: UTF-8
+  passphrase_required: false
+  # EdgeX 3.0 uses API gateway with JWT authentication for microservices
+
+rest_endpoints:
+  # Public API - Metadata
+  - name: get_server_time
+    path: /api/v1/public/meta/getServerTime
+    method: GET
+    auth_required: false
+    request_fields: []
+    response_fields:
+      - timeMillis
+
+  - name: get_metadata
+    path: /api/v1/public/meta/getMetaData
+    method: GET
+    auth_required: false
+    request_fields: []
+    response_fields:
+      - global
+      - coinList
+      - contractList
+      - multiChain
+
+  # Public API - Quote
+  - name: get_ticker_summary
+    path: /api/v1/public/quote/getTicketSummary
+    method: GET
+    auth_required: false
+    request_fields:
+      - period
+    response_fields:
+      - tickerSummary
+      - period
+      - trades
+      - value
+      - openInterest
+
+  - name: get_24_hour_quotes
+    path: /api/v1/public/quote/getTicker
+    method: GET
+    auth_required: false
+    request_fields:
+      - contractId
+    response_fields:
+      - contractId
+      - contractName
+      - priceChange
+      - priceChangePercent
+      - trades
+      - size
+      - value
+      - high
+      - low
+      - open
+      - close
+      - highTime
+      - lowTime
+      - lastPrice
+      - indexPrice
+      - oraclePrice
+      - openInterest
+      - fundingRate
+      - fundingTime
+      - nextFundingTime
+
+  - name: get_kline_multi_contract
+    path: /api/v1/public/quote/getMultiContractKline
+    method: GET
+    auth_required: false
+    request_fields:
+      - contractIdList
+      - priceType
+      - klineType
+      - size
+      - filterBeginKlineTimeInclusive
+      - filterEndKlineTimeExclusive
+    response_fields:
+      - dataList
+      - klineId
+      - contractId
+      - contractName
+      - klineType
+      - klineTime
+      - priceType
+      - trades
+      - size
+      - value
+      - high
+      - low
+      - open
+      - close
+      - makerBuySize
+      - makerBuyValue
+
+  - name: get_exchange_long_short_ratio
+    path: /api/v1/public/quote/getExchangeLongShortRatio
+    method: GET
+    auth_required: false
+    request_fields:
+      - range
+      - filterContractIdList
+      - filterExchangeList
+    response_fields:
+      - exchangeLongShortRatioList
+      - range
+      - contractId
+      - exchange
+      - buyRatio
+      - sellRatio
+      - buyVolUsd
+      - sellVolUsd
+      - createdTime
+      - updatedTime
+
+  - name: get_order_book_depth
+    path: /api/v1/public/quote/getDepth
+    method: GET
+    auth_required: false
+    request_fields:
+      - contractId
+      - level
+    response_fields:
+      - contractId
+      - contractName
+      - asks
+      - bids
+      - depthType
+
+  - name: get_funding_rate_latest
+    path: /api/v1/public/funding/getLatestFundingRate
+    method: GET
+    auth_required: false
+    request_fields:
+      - contractId
+    response_fields:
+      - contractId
+      - fundingTime
+      - fundingTimestamp
+      - oraclePrice
+      - indexPrice
+      - fundingRate
+      - isSettlement
+      - forecastFundingRate
+      - previousFundingRate
+      - previousFundingTimestamp
+      - premiumIndex
+      - avgPremiumIndex
+      - impactMarginNotional
+      - impactAskPrice
+      - impactBidPrice
+      - interestRate
+      - predictedFundingRate
+      - fundingRateIntervalMin
+
+  - name: get_funding_rate_history
+    path: /api/v1/public/funding/getFundingRatePage
+    method: GET
+    auth_required: false
+    request_fields:
+      - contractId
+      - size
+      - offsetData
+      - filterSettlementFundingRate
+      - filterBeginTimeInclusive
+      - filterEndTimeExclusive
+    response_fields:
+      - dataList
+      - nextPageOffsetData
+
+  # Private API - Account
+  - name: get_position_transaction_page
+    path: /api/v1/private/account/getPositionTransactionPage
+    method: GET
+    auth_required: true
+    request_fields:
+      - accountId
+      - size
+      - offsetData
+      - filterCoinIdList
+      - filterContractIdList
+      - filterTypeList
+      - filterStatusList
+      - filterIsLiquidateList
+      - filterIsDeleverageList
+      - filterIsPositionTpslList
+      - filterStartCreatedTimeInclusive
+      - filterEndCreatedTimeExclusive
+    response_fields:
+      - dataList
+      - nextPageOffsetData
+
+  # Private API - Order
+  - name: get_max_order_size
+    path: /api/v1/private/order/getMaxCreateOrderSize
+    method: POST
+    auth_required: true
+    request_fields:
+      - accountId
+      - contractId
+      - price
+    response_fields:
+      - maxBuySize
+      - maxSellSize
+      - ask1Price
+      - bid1Price
+
+  - name: create_order
+    path: /api/v1/private/order/createOrder
+    method: POST
+    auth_required: true
+    request_fields:
+      - accountId
+      - contractId
+      - side
+      - type
+      - price
+      - size
+      - timeInForce
+      - reduceOnly
+      - isPositionTpsl
+      - isSetOpenTp
+      - isSetOpenSl
+      - triggerPrice
+      - triggerPriceType
+      - clientOrderId
+      - expireTime
+      # L2 Signature fields (required for orders, transfers, withdrawals)
+      - l2Nonce
+      - l2Value
+      - l2Size
+      - l2LimitFee
+      - l2ExpireTime
+      - l2Signature
+      - extraType
+      - extraDataJson
+      - symbol
+      - showEqualValInput
+      - maxSellQTY
+      - maxBuyQTY
+    response_fields:
+      - orderId
+
+  - name: cancel_order_by_id
+    path: /api/v1/private/order/cancelOrderById
+    method: POST
+    auth_required: true
+    request_fields:
+      - accountId
+      - orderIdList
+    response_fields:
+      - cancelResultMap
+
+  - name: cancel_all_orders
+    path: /api/v1/private/order/cancelAllOrder
+    method: POST
+    auth_required: true
+    request_fields:
+      - accountId
+    response_fields:
+      - cancelResultMap
+
+  - name: get_order_by_id
+    path: /api/v1/private/order/getOrderById
+    method: GET
+    auth_required: true
+    request_fields:
+      - accountId
+      - orderIdList
+    response_fields:
+      - id
+      - userId
+      - accountId
+      - coinId
+      - contractId
+      - side
+      - price
+      - size
+      - clientOrderId
+      - type
+      - timeInForce
+      - reduceOnly
+      - triggerPrice
+      - triggerPriceType
+      - expireTime
+      - cumFillSize
+      - cumFillValue
+      - maxFillPrice
+      - minFillPrice
+      - cumLiquidateFee
+      - cumRealizePnl
+      - cumMatchSize
+      - cumMatchValue
+      - cumMatchFee
+      - maxLeverage
+      - takerFeeRate
+      - makerFeeRate
+      - liquidateFeeRate
+
+  - name: get_order_by_client_order_id
+    path: /api/v1/private/order/getOrderByClientOrderId
+    method: GET
+    auth_required: true
+    request_fields:
+      - accountId
+      - clientOrderIdList
+    response_fields:
+      - id
+      - userId
+      - accountId
+      - coinId
+      - contractId
+      - side
+      - price
+      - size
+      - clientOrderId
+      - type
+      - timeInForce
+      - reduceOnly
+      - triggerPrice
+      - triggerPriceType
+      - expireTime
+      - status
+      - cumFillSize
+      - cumFillValue
+      - maxFillPrice
+      - minFillPrice
+      - cumLiquidateFee
+      - cumRealizePnl
+      - cumMatchSize
+      - cumMatchValue
+      - cumMatchFee
+      - maxLeverage
+      - takerFeeRate
+      - makerFeeRate
+
+  - name: get_history_orders
+    path: /api/v1/private/order/getHistoryOrderPage
+    method: GET
+    auth_required: true
+    request_fields:
+      - accountId
+      - size
+      - offsetData
+      - filterCoinIdList
+      - filterContractIdList
+      - filterTypeList
+      - filterStatusList
+      - filterIsLiquidateList
+      - filterIsDeleverageList
+      - filterIsPositionTpslList
+      - filterStartCreatedTimeInclusive
+      - filterEndCreatedTimeExclusive
+    response_fields:
+      - dataList
+      - nextPageOffsetData
+
+  - name: get_history_order_fill_transactions
+    path: /api/v1/private/order/getHistoryOrderFillTransactionPage
+    method: GET
+    auth_required: true
+    request_fields:
+      - accountId
+      - size
+      - offsetData
+      - filterCoinIdList
+      - filterContractIdList
+      - filterOrderIdList
+      - filterIsLiquidateList
+      - filterIsDeleverageList
+      - filterIsPositionTpslList
+      - filterStartCreatedTimeInclusive
+      - filterEndCreatedTimeExclusive
+    response_fields:
+      - dataList
+      - nextPageOffsetData
+
+  - name: get_history_orders_by_id
+    path: /api/v1/private/order/getHistoryOrderById
+    method: GET
+    auth_required: true
+    request_fields:
+      - accountId
+      - orderIdList
+    response_fields:
+      - id
+      - userId
+      - accountId
+      - coinId
+      - contractId
+      - side
+      - price
+      - size
+      - clientOrderId
+      - type
+      - timeInForce
+      - reduceOnly
+      - triggerPrice
+      - triggerPriceType
+      - expireTime
+      - cumFillSize
+      - cumFillValue
+      - maxFillPrice
+      - minFillPrice
+      - cumLiquidateFee
+      - cumRealizePnl
+      - cumMatchSize
+      - cumMatchValue
+      - cumMatchFee
+      - maxLeverage
+      - takerFeeRate
+      - makerFeeRate
+
+  - name: get_history_orders_by_client_order_id
+    path: /api/v1/private/order/getHistoryOrderByClientOrderId
+    method: GET
+    auth_required: true
+    request_fields:
+      - accountId
+      - clientOrderIdList
+    response_fields:
+      - id
+      - userId
+      - accountId
+      - coinId
+      - contractId
+      - side
+      - price
+      - size
+      - clientOrderId
+      - type
+      - timeInForce
+      - reduceOnly
+      - triggerPrice
+      - triggerPriceType
+      - expireTime
+      - status
+      - cumFillSize
+      - cumFillValue
+      - maxFillPrice
+      - minFillPrice
+      - cumLiquidateFee
+      - cumRealizePnl
+      - cumMatchSize
+      - cumMatchValue
+      - cumMatchFee
+      - maxLeverage
+      - takerFeeRate
+      - makerFeeRate
+
+websocket_public:
+  ws_public_url: wss://quote.edgex.exchange/api/v1/public/ws
+  channels:
+    - metadata
+    - ticker.{contractId}
+    - ticker.all
+    - kline.{priceType}.{contractId}.{interval}
+    - depth.{contractId}.{level}
+    - trades.{contractId}
+  heartbeat_interval_sec: UNKNOWN
+
+websocket_private:
+  ws_private_url: wss://quote.edgex.exchange/api/v1/private/ws
+  auth_required: true
+  order_updates: true
+  fills: true
+  balance_updates: true
+  # Private WebSocket auto-pushes data without subscription
+  # Topics include ws_zk_accounts_v3 and ws_notify_v1
+
+order_model:
+  order_types:
+    - LIMIT
+    - MARKET
+    - STOP_LIMIT
+  order_states:
+    - OPEN
+    - FILLED
+    - CANCELED
+    - PARTIALLY_FILLED
+    - FAILED
+    - PENDING
+    - EXPIRED
+    - UNTRIGGERED
+  partial_fill_behavior: CAN_PARTIAL
+  cancel_behavior: CAN_PARTIAL
+  time_in_force_options:
+    - GOOD_TIL_CANCEL
+    - FILL_OR_KILL
+    - IMMEDIATE_OR_CANCEL
+    - POST_ONLY
+
+instrument_metadata:
+  instrument_id_format: CONTRACT_ID_NUMERIC_STRING
+  price_precision: CONTRACT_SPECIFIC
+  quantity_precision: CONTRACT_SPECIFIC
+  contract_size: CONTRACT_SPECIFIC
+  # Precision varies per contract (see metadata API)
+  # Tick size and step size available via metadata API
+  # Min/max order sizes: minOrderSize, maxOrderSize, maxPositionSize
+  # Risk tiers with different leverage limits
+  # Default leverage: 50x maximum
+  # Maker fee rate: ~0.018%
+  # Taker fee rate: ~0.05%
+
+special_notes:
+  - "Built on StarkEx Layer 2 rollup architecture with parallel transaction execution"
+  - "Uses app-specific execution layer (edgeVM) optimized for high-performance perpetual trading"
+  - "Deterministic Parallel Transaction Execution (PTE) executes non-conflicting transactions in parallel"
+  - "Market-sharded execution: each market handled by independent VM Actor for linear scaling"
+  - "StarkEx ECDSA signature with SHA3 hashing of message before signing"
+  - "All private API order requests require L2 signature parameters: l2Nonce, l2Value, l2Size, l2LimitFee, l2Signature, l2ExpireTime"
+  - "Contract IDs are numeric strings (e.g., 10000001 for BTCUSDT, 10000002 for ETHUSDT, 10000003 for SOLUSDT)"
+  - "Tick size and step size vary per contract and are available via metadata API"
+  - "Uses minOrderSize and maxOrderSize for order quantity validation"
+  - "Supports trigger orders (stop orders) with triggerPrice and triggerPriceType"
+  - "Supports take-profit and stop-loss orders via isSetOpenTp and isSetOpenSl parameters"
+  - "Supports reduce-only orders and position management"
+  - "WebSocket private connection automatically pushes data without subscription"
+  - "Funding rate exchanged between long and short every 8 hours"
+  - "Uses decentralized Stork oracle for pricing"
+  - "Multi-chain deposits/withdrawals: Sepolia, BNB, Arbitrum"
+  - "Cross-collateral support with multiple tokens"
+  - "Default leverage: 50x maximum, with configurable position limits"
+  - "Maker fee rate: ~0.018%, Taker fee rate: ~0.05%"
+  - "Liquidation fee rate: 0.01%"
+  - "API v1: Current production version"
+  - "Testnet available at https://testnet.edgex.exchange"
+  - "Contract metadata includes risk tiers with different leverage and margin rates"
+

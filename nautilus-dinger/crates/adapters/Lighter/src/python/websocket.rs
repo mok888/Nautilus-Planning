@@ -1,7 +1,10 @@
 use pyo3::prelude::*;
 
 #[pyclass]
-pub class PyWebSocketClient {
+pub struct PyWebSocketClient {}
+
+#[pymethods]
+impl PyWebSocketClient {
     #[new]
     fn new() -> Self {
         PyWebSocketClient {}

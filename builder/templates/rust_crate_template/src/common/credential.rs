@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use nautilus_common::config::get_or_env_var_opt;
+use std::env;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct {{EXCHANGE_NAME}}Credential {
@@ -13,8 +13,8 @@ impl {{EXCHANGE_NAME}}Credential {
         api_key: Option<String>,
         api_secret: Option<String>,
     ) -> Result<Option<Self>, String> {
-        let api_key = get_or_env_var_opt("{{EXCHANGE_UPPER}}_API_KEY", api_key);
-        let api_secret = get_or_env_var_opt("{{EXCHANGE_UPPER}}_API_SECRET", api_secret);
+        let api_key = get_or_env_var_opt(api_key, "{{EXCHANGE_UPPER}}_API_KEY");
+        let api_secret = get_or_env_var_opt(api_secret, "{{EXCHANGE_UPPER}}_API_SECRET");
 
         match (api_key, api_secret) {
             (Some(api_key), Some(api_secret)) => Ok(Some(Self {
@@ -25,4 +25,8 @@ impl {{EXCHANGE_NAME}}Credential {
             _ => Err("Both API key and secret must be provided if one is present.".to_string()),
         }
     }
+}
+
+fn get_or_env_var_opt(value: Option<String>, env_key: &str) -> Option<String> {
+    value.or_else(|| env::var(env_key).ok())
 }

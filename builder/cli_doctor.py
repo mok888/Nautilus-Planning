@@ -10,6 +10,7 @@ import platform
 from typing import Iterable, Dict, Any
 from pathlib import Path
 from dotenv import load_dotenv
+from builder.validate_env import validate_env_vars
 
 # Ensure environment variables from .env are loaded
 load_dotenv()
@@ -91,6 +92,13 @@ def _check_llm_config() -> dict[str, Any]:
             return {"ok": True, "provider": "glm", "auth": "env:GLM_API_KEY"}
         return {"ok": False, "error": "Missing GLM_API_KEY for provider=glm"}
 
+    if provider == "opencode-cli":
+        # Best-effort check that opencode exists
+        res = _check_binary("opencode")
+        if res.get("ok"):
+            return {"ok": True, "provider": "opencode-cli", "auth": "opencode CLI available"}
+        return {"ok": False, "error": "opencode CLI not found in PATH"}
+
     return {"ok": False, "error": f"Unknown LLM_PROVIDER: {provider}"}
 
 
@@ -124,6 +132,8 @@ def run_doctor(
     json_output: bool = False,
     fix: bool = False,
     fail_fast: bool = False,
+    exchange: str | None = None,
+    allow_env_fail: bool = False,
 ) -> None:
     report: Dict[str, Any] = {
         "tools": {},
@@ -153,8 +163,24 @@ def run_doctor(
     # --- Env vars (Required Generic) ---
     missing_env = _check_env(REQUIRED_ENV_VARS)
     report["env"]["missing"] = missing_env
-    if missing_env:
+    if missing_env and not allow_env_fail:
         report["ok"] = False
+
+    # --- Env vars (Schema-derived, per exchange research) ---
+    skip_env = os.getenv("DINGER_SKIP_ENV_CHECK", "").strip().lower() in {"1", "true", "yes"}
+    env_result = None
+    if skip_env:
+        report["env"]["skipped"] = True
+    else:
+        env_result = validate_env_vars(exchange_filter=exchange)
+        if env_result.errors:
+            report["env"]["schema_errors"] = env_result.errors
+            if not allow_env_fail:
+                report["ok"] = False
+        if env_result.missing_by_exchange:
+            report["env"]["missing_by_exchange"] = env_result.missing_by_exchange
+            if not allow_env_fail:
+                report["ok"] = False
 
     # --- JSON MODE (CI) ---
     if json_output:
@@ -178,7 +204,21 @@ def run_doctor(
         typer.echo(f"❌ LLM Config: {llm_res['error']}")
 
     if missing_env:
-        typer.echo(f"❌ Missing env vars: {', '.join(missing_env)}")
+        prefix = "⚠️" if allow_env_fail else "❌"
+        typer.echo(f"{prefix} Missing env vars: {', '.join(missing_env)}")
+    if report["env"].get("skipped"):
+        typer.echo("⚠️  Env validation skipped (DINGER_SKIP_ENV_CHECK=1).")
+    else:
+        if env_result and env_result.errors:
+            prefix = "⚠️" if allow_env_fail else "❌"
+            typer.echo(f"{prefix} Schema/env validation errors:")
+            for err in env_result.errors:
+                typer.echo(f"   - {err}")
+        if env_result and env_result.missing_by_exchange:
+            prefix = "⚠️" if allow_env_fail else "❌"
+            typer.echo(f"{prefix} Missing exchange env vars:")
+            for exchange_name, vars_ in env_result.missing_by_exchange.items():
+                typer.echo(f"   - {exchange_name}: {', '.join(vars_)}")
 
     if fix and not report["ok"]:
         typer.echo("\n🛠 Fix instructions:")
@@ -188,8 +228,18 @@ def run_doctor(
             for c in cmds:
                 typer.echo(f"  {c}")
 
+    env_warnings = False
+    if missing_env:
+        env_warnings = True
+    if env_result and (env_result.errors or env_result.missing_by_exchange):
+        env_warnings = True
+
     if not report["ok"]:
         typer.echo("\n❌ Doctor failed.")
         sys.exit(1)
+
+    if allow_env_fail and env_warnings:
+        typer.echo("\n✅ Doctor completed with env warnings.")
+        return
 
     typer.echo("\n✅ Doctor passed. Environment is healthy.")

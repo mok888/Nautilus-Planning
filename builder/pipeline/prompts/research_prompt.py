@@ -1,7 +1,7 @@
 from builder.pipeline.models import ExchangeResearch
 from builder.pipeline.schema_walk import walk_schema
 
-def generate_research_prompt(exchange: str = None, docs_url: str = None) -> str:
+def generate_research_prompt(exchange: str = None, docs_url: str = None, output_path: str = None) -> str:
     schema = walk_schema(ExchangeResearch)
 
     intent = "a quantitative trading systems researcher"
@@ -17,6 +17,9 @@ def generate_research_prompt(exchange: str = None, docs_url: str = None) -> str:
     
     if docs_url:
         lines.append(f"Official Docs: {docs_url}")
+
+    if output_path:
+        lines.append(f"OUTPUT INSTRUCTION: Return ONLY the YAML content. The user intends to save this to: {output_path}")
 
     lines.extend([
         "",

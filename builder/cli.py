@@ -1,9 +1,10 @@
 from pathlib import Path
 import typer
 import json
+import yaml
 import sys
 import subprocess
-from typing import Annotated, Optional
+from typing import Annotated, Optional, Any
 from dotenv import load_dotenv
 
 # Load environment variables from .env if present
@@ -34,7 +35,10 @@ def research(
     Emit schema-driven research prompt.
     """
     try:
-        prompt = generate_research_prompt(exchange, docs_url)
+        # We want the prompt to instruct the LLM to target the *final YAML file*,
+        # not the temporary prompt file.
+        final_yaml_path = f"builder/research/{exchange.lower().replace(' ', '_')}.yaml"
+        prompt = generate_research_prompt(exchange, docs_url, output_path=final_yaml_path)
 
         target_file = output
         if auto_save and exchange:
@@ -48,6 +52,28 @@ def research(
     except Exception as e:
         typer.echo(f"ERROR: {e}", err=True)
         sys.exit(1)
+
+
+    except Exception as e:
+        typer.echo(f"ERROR: {e}", err=True)
+        sys.exit(1)
+
+
+def _smart_merge(new: Any, old: Any) -> Any:
+    """
+    Merge new data into old data, preferring old data (manual overrides) on collision.
+    Recurses for dictionaries.
+    """
+    if isinstance(new, dict) and isinstance(old, dict):
+        merged = old.copy()
+        for k, v in new.items():
+            if k not in merged:
+                merged[k] = v
+            else:
+                merged[k] = _smart_merge(v, merged[k])
+        return merged
+    # For lists or primitives, OLD wins (preserve manual edits)
+    return old if old is not None else new
 
 
 @app.command(name="research-auto")
@@ -78,8 +104,20 @@ def research_auto(
         clean_yaml = result.replace("```yaml", "").replace("```", "").strip()
         
         if output:
-            output.write_text(clean_yaml)
-            typer.echo(f"✅ Research YAML written to {output}")
+            if output.exists() and output.stat().st_size > 0:
+                try:
+                    old_data = yaml.safe_load(output.read_text())
+                    new_data = yaml.safe_load(clean_yaml)
+                    merged = _smart_merge(new_data, old_data)
+                    output.write_text(yaml.dump(merged, sort_keys=False))
+                    typer.echo(f"✅ Research MERGED into {output} (Manual edits preserved)")
+                except Exception as merge_err:
+                    typer.echo(f"⚠️  Merge failed ({merge_err}), appending to file instead.")
+                    with output.open("a") as f:
+                        f.write(f"\n# --- NEW RESEARCH ---\n{clean_yaml}")
+            else:
+                output.write_text(clean_yaml)
+                typer.echo(f"✅ Research YAML written to {output}")
         else:
             typer.echo(clean_yaml)
             
@@ -93,6 +131,11 @@ def generate(
     research_yaml: Annotated[Path, typer.Argument(exists=True, readable=True, help="Validated research YAML file")],
     language: Annotated[str, typer.Option("--language", "-l", help="Target language: python | rust")],
     snapshots: Annotated[Path, typer.Option("--snapshots", "-s", help="Snapshot root directory")],
+    strict: Annotated[bool, typer.Option("--strict", help="Fail on TODOs and compiler warnings (Rust)")] = False,
+    skip_cargo_check: Annotated[bool, typer.Option("--skip-cargo-check", help="Skip Rust cargo check during codegen")] = False,
+    incremental: Annotated[bool, typer.Option("--incremental", "-i", help="Per-file generation (default, more reliable)")] = True,
+    resume: Annotated[bool, typer.Option("--resume", "-r", help="Resume from previous state file")] = False,
+    batch: Annotated[bool, typer.Option("--batch", help="Use legacy batch mode (single LLM call for all files)")] = False,
 ):
     """
     Generate adapter code and validate against snapshots.
@@ -105,10 +148,18 @@ def generate(
         else:
             raise typer.BadParameter("language must be python or rust")
 
+        # If --batch is specified, disable incremental mode
+        use_incremental = incremental and not batch
+
         files = run_codegen(
             research_yaml=research_yaml,
             prompt=prompt,
             snapshot_root=snapshots,
+            strict=strict,
+            skip_cargo_check=skip_cargo_check,
+            incremental=use_incremental,
+            resume=resume,
+            language=language,
         )
 
         typer.echo(
@@ -200,6 +251,7 @@ def doctor(
     json: Annotated[bool, typer.Option("--json", help="Output machine-readable JSON (CI mode)")] = False,
     fix: Annotated[bool, typer.Option("--fix", help="Print install instructions for missing tools")] = False,
     fail_fast: Annotated[bool, typer.Option("--fail-fast", help="Exit immediately on first failure")] = False,
+    exchange: Annotated[Optional[str], typer.Option("--exchange", "-e", help="Only validate env vars for this exchange")] = None,
 ):
     """
     Validate local environment (rustc, cargo, env vars).
@@ -210,6 +262,7 @@ def doctor(
         json_output=json,
         fix=fix,
         fail_fast=fail_fast,
+        exchange=exchange,
     )
 
 
@@ -219,6 +272,9 @@ def pipeline(
     url: Annotated[Optional[str], typer.Option("--url", "-u", help="Documentation URL")] = None,
     update_snapshots: Annotated[bool, typer.Option("--snapshot", "-s", help="Initialize or update snapshots")] = False,
     run_tests: Annotated[bool, typer.Option("--test", "-t", help="Run automated tests after generation")] = False,
+    research: Annotated[Optional[Path], typer.Option("--research", "-r", help="Use existing research YAML and skip auto research")] = None,
+    reuse_research: Annotated[bool, typer.Option("--reuse-research", help="Reuse existing research YAML if present")] = False,
+    skip_cargo_check: Annotated[bool, typer.Option("--skip-cargo-check", help="Skip Rust cargo check during codegen")] = False,
 ):
     """
     Run the full end-to-end pipeline: Doctor -> Research -> Scaffold -> Generate (Rust & Python).
@@ -228,18 +284,25 @@ def pipeline(
         typer.secho(f"\n--- Phase 0: Doctor Check ---", fg=typer.colors.CYAN, bold=True)
         from builder.cli_doctor import run_doctor
         try:
-            run_doctor(json_output=False, fix=False, fail_fast=False)
+            run_doctor(json_output=False, fix=False, fail_fast=False, allow_env_fail=True)
         except SystemExit as e:
              if e.code != 0:
-                 typer.secho("❌ Doctor check failed. Fix environment before running pipeline.", fg=typer.colors.RED)
-                 sys.exit(1)
+                 typer.secho("⚠️  Doctor check failed. Continuing anyway...", fg=typer.colors.YELLOW)
 
         # 1. Research
-        research_yaml = Path(f"builder/research/{exchange.lower()}.yaml")
+        research_yaml = research or Path(f"builder/research/{exchange.lower()}.yaml")
         research_yaml.parent.mkdir(parents=True, exist_ok=True)
-        
-        typer.secho(f"\n--- Phase 1: Research ({exchange}) ---", fg=typer.colors.CYAN, bold=True)
-        research_auto(exchange=exchange, docs_url=url, output=research_yaml)
+
+        if research and not research_yaml.exists():
+            typer.secho(f"❌ Research file not found: {research_yaml}", fg=typer.colors.RED)
+            sys.exit(1)
+
+        if reuse_research and research_yaml.exists():
+            typer.secho(f"\n--- Phase 1: Research (reuse) ---", fg=typer.colors.CYAN, bold=True)
+            typer.echo(f"✅ Using existing research YAML: {research_yaml}")
+        else:
+            typer.secho(f"\n--- Phase 1: Research ({exchange}) ---", fg=typer.colors.CYAN, bold=True)
+            research_auto(exchange=exchange, docs_url=url, output=research_yaml)
         
         # 2. Scaffold
         typer.secho(f"\n--- Phase 2: Scaffolding ---", fg=typer.colors.CYAN, bold=True)
@@ -251,7 +314,12 @@ def pipeline(
         if update_snapshots:
             snapshot(research_yaml=research_yaml, language="rust", snapshots=rust_snapshots)
         else:
-            generate(research_yaml=research_yaml, language="rust", snapshots=rust_snapshots)
+            generate(
+                research_yaml=research_yaml,
+                language="rust",
+                snapshots=rust_snapshots,
+                skip_cargo_check=skip_cargo_check,
+            )
         
         # Rust Linting & Testing
         rust_dir = Path("nautilus-dinger/crates/adapters") / exchange

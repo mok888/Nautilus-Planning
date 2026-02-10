@@ -8,23 +8,23 @@ market_coverage:
   futures_supported: false
   options_supported: false
 rest_api:
-  rest_base_url: https://api.lighter.xyz
+  rest_base_url: https://mainnet.zklighter.elliot.ai
   api_version: v1
   rate_limits:
     - window: 1m
-      limit: 120
+    - limit: 120
+    - premium_users: "2400 requests per minute"
+    - standard_users: "60 requests per minute"
+    - notes: "Rate limits apply per IP address and L1 wallet address"
 authentication:
-  auth_type: API_KEY
-  headers:
-    - x-lighter-chain-id
-    - x-api-key
-    - x-timestamp
-    - x-signature
-  timestamp_format: milliseconds
-  signature_payload: timestamp + method + requestPath + body
-  hash_algo: SHA256
+  auth_type: SIGNATURE
+  headers: ["Auths"]
+  timestamp_format: milliseconds # Part of the token payload, not a separate header
+  signature_payload: SDK_GENERATED_TOKEN # Opaque token containing nonce/expiry/sig
+  hash_algo: SCHNORR # BabyJubJub curve
   encoding: hex
   passphrase_required: false
+  notes: "Requires lighter-sdk (ctypes/shared lib) to generate Schnorr signature on BabyJubJub curve. Token is passed as 'auth' query param or header."
 rest_endpoints:
   - name: Get Tickers
     path: /v1/tickers
@@ -67,15 +67,17 @@ rest_endpoints:
       - status
       - symbol
 websocket_public:
-  ws_public_url: wss://api.lighter.xyz/ws
+  ws_public_url: wss://mainnet.zklighter.elliot.ai/stream
   channels:
     - name: orderbook
       description: Real-time orderbook updates
     - name: trades
       description: Real-time trade updates
+    - name: positions
+      description: Real-time position updates
   heartbeat_interval_sec: 30
 websocket_private:
-  ws_private_url: wss://api.lighter.xyz/ws
+  ws_private_url: wss://mainnet.zklighter.elliot.ai/stream
   auth_required: true
   order_updates: true
   fills: true
@@ -91,7 +93,14 @@ order_model:
     - CANCELLED
     - REJECTED
     - EXPIRED
-  partial_fill_behavior: STANDARD
+  time_in_force_options:
+    - DAY
+    - GTC
+    - IOC
+    - FOK
+    - MOO
+    - MARKET_ON_OPEN
+  partial_fill_behavior: CAN_PARTIAL
   cancel_behavior: GTC
 instrument_metadata:
   instrument_id_format: BASE-QUOTE
@@ -100,4 +109,16 @@ instrument_metadata:
   contract_size: 1
 special_notes:
   - Lighter is a decentralized exchange (DEX) running on Polygon.
-  - The x-lighter-chain-id header is required for all requests.
+  - "IMPORTANT: Use environment variable 'LIGHTER_API_KEY_PRIVATE_KEY' for private key."
+  - "IMPORTANT: Use environment variable 'LIGHTER_API_KEY_INDEX' for key index."
+  - "IMPORTANT: Use environment variable 'LIGHTER_ACCOUNT_INDEX' for account index."
+  - "The x-lighter-chain-id header is required for all requests."
+  - "Supports sub-accounts and account tier switching via /v1/changeAccountTier endpoint."
+  - "Premium accounts: 0.002% maker fee, 200ms maker/cancel latency, 2400 requests/min limit."
+  - "Standard accounts: 0% maker fee, 300ms taker latency, 60 requests/min limit."
+  - "Rate limits apply per IP address and L1 wallet address."
+  - "Available SDKs: Python (lighter-sdk from PyPI), Go (github.com/elliottech/lighter-go), JavaScript/TypeScript (unofficial)."
+  - "Available authentication methods: SDK-generated opaque token passed via 'auth' query param or 'Authorization' header (contains nonce/expiry/sig), or raw private key signing via lighter.SignerClient."
+  - "Official GitHub: github.com/elliottech/lighter-python - Official Python SDK with SignerClient, WsClient, and utils."
+  - "Rate limits tracked separately per IP address and L1 wallet address for both REST and WebSocket."
+  - "Market IDs: ETH=0, BTC=1, SOL=2 (used for instrument identification)."

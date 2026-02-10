@@ -1,0 +1,450 @@
+
+exchange_identity:
+  exchange_name: Apex Omni
+  venue_id: APEX_OMNI
+  exchange_type: DEX
+
+market_coverage:
+  spot_supported: false
+  perps_supported: true
+  futures_supported: false
+  options_supported: false
+
+rest_api:
+  rest_base_url: https://omni.apex.exchange/api/
+  api_version: v3
+  rate_limits:
+    - rule: "600 requests per 60 seconds (GET)"
+    - rule: "300 requests per 60 seconds (POST)"
+    - rule: "200 orders per user limit"
+
+authentication:
+  auth_type: WALLET
+  headers:
+    - APEX-SIGNATURE
+    - APEX-API-KEY
+    - APEX-TIMESTAMP
+    - APEX-PASSPHRASE
+  timestamp_format: milliseconds
+  signature_payload: timestamp + method + path + dataString
+  hash_algo: sha256
+  encoding: hex
+  passphrase_required: true
+
+rest_endpoints:
+  # User Endpoints
+  - name: generate_nonce
+    path: /v3/generate-nonce
+    method: POST
+    auth_required: false
+    request_fields:
+      - l2Key
+      - ethAddress
+      - chainId
+    response_fields:
+      - nonce
+      - nonceExpired
+  - name: register_user
+    path: /v3/onboarding
+    method: POST
+    auth_required: true
+    request_fields:
+      - l2Key
+      - ethereumAddress
+      - referredByAffiliateLink
+      - country
+    response_fields:
+      - apiKey
+      - user
+      - account
+  - name: get_user
+    path: /v3/user
+    method: GET
+    auth_required: true
+    request_fields: []
+    response_fields:
+      - ethereumAddress
+      - isRegistered
+      - email
+      - username
+  - name: modify_user
+    path: /v3/modify-user
+    method: POST
+    auth_required: true
+    request_fields:
+      - userData
+      - email
+      - username
+      - isSharingUsername
+      - isSharingAddress
+      - country
+    response_fields:
+      - ethereumAddress
+      - email
+      - username
+
+  # Account Endpoints
+  - name: get_account
+    path: /v3/account
+    method: GET
+    auth_required: true
+    request_fields: []
+    response_fields:
+      - id
+      - spotAccount
+      - contractAccount
+      - spotWallets
+      - contractWallets
+      - positions
+  - name: get_account_balance
+    path: /v3/account/balance
+    method: GET
+    auth_required: true
+    request_fields:
+      - accountId
+    response_fields:
+      - balance
+      - token
+  - name: get_funding_rate
+    path: /v3/funding-rate
+    method: GET
+    auth_required: true
+    request_fields:
+      - symbol
+    response_fields:
+      - fundingRate
+      - fundingTime
+      - symbol
+
+  # Trade Endpoints
+  - name: create_order
+    path: /v3/order
+    method: POST
+    auth_required: true
+    request_fields:
+      - symbol
+      - side
+      - type
+      - size
+      - price
+      - limitFee
+      - triggerPrice
+      - clientOrderId
+    response_fields:
+      - orderId
+      - clientOrderId
+      - symbol
+      - side
+      - size
+      - price
+      - status
+  - name: cancel_order
+    path: /v3/cancel-order
+    method: POST
+    auth_required: true
+    request_fields:
+      - symbol
+      - orderId
+    response_fields:
+      - orderId
+      - status
+  - name: cancel_order_by_client_id
+    path: /v3/cancel-order-by-clientOrderId
+    method: POST
+    auth_required: true
+    request_fields:
+      - symbol
+      - clientOrderId
+    response_fields:
+      - clientOrderId
+      - status
+  - name: get_open_orders
+    path: /v3/open-orders
+    method: GET
+    auth_required: true
+    request_fields:
+      - symbol
+    response_fields:
+      - orderId
+      - symbol
+      - side
+      - size
+      - price
+      - status
+  - name: cancel_all_open_orders
+    path: /v3/cancel-all-open-orders
+    method: POST
+    auth_required: true
+    request_fields:
+      - symbol
+    response_fields:
+      - message
+  - name: get_all_order_history
+    path: /v3/all-order-history
+    method: GET
+    auth_required: true
+    request_fields:
+      - symbol
+      - limit
+      - page
+    response_fields:
+      - orderId
+      - symbol
+      - side
+      - size
+      - price
+      - avgPrice
+      - fee
+      - status
+      - createdAt
+  - name: get_order_by_id
+    path: /v3/order
+    method: GET
+    auth_required: true
+    request_fields:
+      - orderId
+    response_fields:
+      - orderId
+      - clientOrderId
+      - symbol
+      - side
+      - size
+      - price
+      - status
+  - name: get_order_by_client_order_id
+    path: /v3/order/clientOrderId
+    method: GET
+    auth_required: true
+    request_fields:
+      - clientOrderId
+    response_fields:
+      - orderId
+      - clientOrderId
+      - symbol
+      - side
+      - size
+      - price
+      - status
+  - name: get_trade_history
+    path: /v3/trade-history
+    method: GET
+    auth_required: true
+    request_fields:
+      - symbol
+      - limit
+      - page
+    response_fields:
+      - tradeId
+      - orderId
+      - symbol
+      - side
+      - size
+      - price
+      - fee
+      - timestamp
+
+  # Asset Endpoints
+  - name: transfer_fund_to_contract
+    path: /v3/asset/transfer-fund-to-contract
+    method: POST
+    auth_required: true
+    request_fields:
+      - amount
+      - token
+      - accountId
+    response_fields:
+      - balance
+      - pendingTransferOutAmount
+  - name: transfer_contract_to_fund
+    path: /v3/asset/transfer-contract-to-fund
+    method: POST
+    auth_required: true
+    request_fields:
+      - amount
+      - token
+      - accountId
+    response_fields:
+      - balance
+      - pendingTransferInAmount
+  - name: withdraw
+    path: /v3/asset/withdraw
+    method: POST
+    auth_required: true
+    request_fields:
+      - amount
+      - token
+      - toAddress
+      - chainId
+    response_fields:
+      - withdrawId
+      - status
+  - name: get_withdrawal_fees
+    path: /v3/asset/withdrawal-fees
+    method: GET
+    auth_required: true
+    request_fields:
+      - token
+    response_fields:
+      - token
+      - fee
+  - name: submit_withdraw_claim
+    path: /v3/asset/submit-withdraw-claim
+    method: POST
+    auth_required: true
+    request_fields:
+      - withdrawId
+      - transactionId
+    response_fields:
+      - status
+  - name: get_transfer_limits
+    path: /v3/asset/transfer-limits
+    method: GET
+    auth_required: true
+    request_fields:
+      - token
+    response_fields:
+      - maxTransferAmount
+      - minTransferAmount
+  - name: manual_repayment
+    path: /v3/asset/manual-repayment-v3
+    method: POST
+    auth_required: true
+    request_fields:
+      - amount
+      - symbol
+    response_fields:
+      - balance
+      - status
+  - name: get_deposit_withdraw_data
+    path: /v3/asset/deposit-withdraw-data
+    method: GET
+    auth_required: true
+    request_fields:
+      - type
+      - limit
+      - page
+    response_fields:
+      - id
+      - type
+      - amount
+      - status
+      - timestamp
+
+  # Public API Endpoints
+  - name: get_system_time
+    path: /v3/time
+    method: GET
+    auth_required: false
+    request_fields: []
+    response_fields:
+      - timestamp
+  - name: get_all_config_data
+    path: /v3/configs
+    method: GET
+    auth_required: false
+    request_fields: []
+    response_fields:
+      - configs
+  - name: get_market_depth
+    path: /v3/depth
+    method: GET
+    auth_required: false
+    request_fields:
+      - symbol
+      - limit
+    response_fields:
+      - asks
+      - bids
+      - timestamp
+  - name: get_newest_trading_data
+    path: /v3/ticker
+    method: GET
+    auth_required: false
+    request_fields:
+      - symbol
+    response_fields:
+      - symbol
+      - lastPrice
+      - priceChange24h
+      - volume24h
+  - name: get_candlestick_data
+    path: /v3/klines
+    method: GET
+    auth_required: false
+    request_fields:
+      - symbol
+      - interval
+      - limit
+    response_fields:
+      - timestamp
+      - open
+      - high
+      - low
+      - close
+      - volume
+  - name: get_funding_rate_history
+    path: /v3/funding-rate-history
+    method: GET
+    auth_required: false
+    request_fields:
+      - symbol
+      - limit
+    response_fields:
+      - symbol
+      - fundingRate
+      - fundingTime
+
+websocket_public:
+  ws_public_url: wss://quote.omni.apex.exchange/realtime_public?v=2
+  channels:
+    - depth
+    - trade
+    - ticker
+    - candlestick
+    - all-tickers
+  heartbeat_interval_sec: 30
+
+websocket_private:
+  ws_private_url: wss://quote.omni.apex.exchange/realtime_private?v=2
+  auth_required: true
+  order_updates: true
+  fills: true
+  balance_updates: true
+  account_info: true
+
+order_model:
+  order_types:
+    - limit
+    - market
+    - stop
+    - stop_limit
+  order_states:
+    - NEW
+    - FILLED
+    - CANCELED
+    - PARTIALLY_FILLED
+    - REJECTED
+    - PENDING_CANCEL
+  partial_fill_behavior: FILL_OR_REMAIN
+  cancel_behavior: CANCEL_REMAINING
+
+instrument_metadata:
+  instrument_id_format: SYMBOL-USDT
+  price_precision: "8"
+  quantity_precision: "8"
+  contract_size: "1"
+
+special_notes:
+  - "Requires dual authentication: API Key signature (APEX-SIGNATURE header) + ZkKeys payload signature"
+  - "ZkKeys signature required for orders, transfers, and withdrawals - seeds and l2Key needed"
+  - "Market orders require explicit price parameter unlike typical exchanges"
+  - "Time parameters use int64 format by default"
+  - "USDT is default settleCurrency for all contracts"
+  - "Supports cross-collateral with USDC, WBTC, WETH, ETH, cmETH, mETH, cbBTC, USDe"
+  - "Multi-chain deposits/withdrawals: Ethereum, BNB Chain, Base, Mantle, Arbitrum"
+  - "Funding rate exchanged between long and short every 1 hour"
+  - "Client ID converted to nonce and slotId for ZkKeys signature"
+  - "IP rate limit: 600 requests per 60 seconds"
+  - "POST rate limit: 300 requests per 60 seconds"
+  - "Order limit: 200 orders per user"
+  - "Testnet available at https://testnet.omni.apex.exchange"

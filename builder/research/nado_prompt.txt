@@ -1,0 +1,82 @@
+You are a researcher analyzing the NADO exchange.
+
+TASK:
+Fill in the following schema using ONLY verifiable facts.
+OUTPUT INSTRUCTION: Return ONLY the YAML content. The user intends to save this to: builder/research/nado.yaml
+iNFO: https://nadohq.github.io/nado-python-sdk/getting-started.html#getting-started
+RULES:
+- Use official docs or GitHub only
+- For 'venue_id', ALWAYS provide a value. If not found, use the UPPERCASE exchange name.
+- For 'price_precision' and 'quantity_precision', look for tick size or step size. If not found, make an educated guess (e.g., 8).
+- For other fields, if truly unknown, write EXACTLY: UNKNOWN
+- Preserve field names exactly
+- Output VALID YAML ONLY
+
+exchange_identity:
+  exchange_name: <value>
+  venue_id: <value>
+  exchange_type: <value>
+market_coverage:
+  spot_supported: <value>
+  perps_supported: <value>
+  futures_supported: <value>
+  options_supported: <value>
+rest_api:
+  rest_base_url: <value>
+  api_version: <value>
+  rate_limits:
+    -
+      <value>
+authentication:
+  auth_type: <value>
+  headers:
+    -
+      <value>
+  timestamp_format: <value>
+  signature_payload: <value>
+  hash_algo: <value>
+  encoding: <value>
+  passphrase_required: <value>
+rest_endpoints:
+  -
+    name: <value>
+    path: <value>
+    method: <value>
+    auth_required: <value>
+    request_fields:
+      -
+        <value>
+    response_fields:
+      -
+        <value>
+websocket_public:
+  ws_public_url: <value>
+  channels:
+    -
+      <value>
+  heartbeat_interval_sec: <value>
+websocket_private:
+  ws_private_url: <value>
+  auth_required: <value>
+  order_updates: <value>
+  fills: <value>
+  balance_updates: <value>
+order_model:
+  order_types:
+    -
+      <value>
+  order_states:
+    -
+      <value>
+  partial_fill_behavior: <value>
+  cancel_behavior: <value>
+instrument_metadata:
+  instrument_id_format: <value>
+  price_precision: <value>
+  quantity_precision: <value>
+  contract_size: <value>
+special_notes:
+  -
+    <value>
+
+NO commentary. YAML only.

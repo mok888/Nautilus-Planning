@@ -1,0 +1,353 @@
+exchange_identity:
+  exchange_name: StandX
+  venue_id: STANDX
+  exchange_type: DEX
+market_coverage:
+  spot_supported: false
+  perps_supported: true
+  futures_supported: false
+  options_supported: false
+rest_api:
+  rest_base_url: https://perps.standx.com
+  api_version: v1
+  testnet_base_url: https://testnet.perps.standx.com
+  rate_limits:
+    - rule: JWT token validity 7 days
+    - rule: API documentation is under construction - specific limits may change
+    - rule: Use environment variable STANDX_API_TOKEN for JWT Bearer token
+    - rule: Use environment variable STANDX_REQUEST_ED25519_PRIVATE_KEY for signing
+authentication:
+  auth_type: JWT
+  headers:
+    - Authorization
+    - x-request-sign-version
+    - x-request-id
+    - x-request-timestamp
+    - x-request-signature
+    - x-session-id
+  timestamp_format: milliseconds
+  signature_payload: "{version},{id},{timestamp},{payload}"
+  hash_algo: ed25519
+  encoding: base64
+  passphrase_required: UNKNOWN
+rest_endpoints:
+  - name: create_new_order
+    path: /api/new_order
+    method: POST
+    auth_required: true
+    request_fields:
+      - symbol
+      - side
+      - order_type
+      - qty
+      - time_in_force
+      - reduce_only
+    response_fields:
+      - code
+      - message
+      - request_id
+  - name: cancel_order
+    path: /api/cancel_order
+    method: POST
+    auth_required: true
+    request_fields:
+      - order_id
+      - cl_ord_id
+    response_fields:
+      - code
+      - message
+      - request_id
+  - name: cancel_multiple_orders
+    path: /api/cancel_orders
+    method: POST
+    auth_required: true
+    request_fields:
+      - order_id_list
+      - cl_ord_id_list
+    response_fields:
+      - code
+      - message
+      - request_id
+  - name: change_leverage
+    path: /api/change_leverage
+    method: POST
+    auth_required: true
+    request_fields:
+      - symbol
+      - leverage
+    response_fields:
+      - code
+      - message
+      - request_id
+  - name: change_margin_mode
+    path: /api/change_margin_mode
+    method: POST
+    auth_required: true
+    request_fields:
+      - symbol
+      - margin_mode
+    response_fields:
+      - code
+      - message
+      - request_id
+  - name: transfer_margin
+    path: /api/transfer_margin
+    method: POST
+    auth_required: true
+    request_fields:
+      - symbol
+      - amount_in
+    response_fields:
+      - code
+      - message
+      - request_id
+  - name: query_order
+    path: /api/query_order
+    method: GET
+    auth_required: true
+    request_fields:
+      - order_id
+      - cl_ord_id
+    response_fields:
+      - id
+      - symbol
+      - side
+      - order_type
+      - status
+      - price
+      - qty
+  - name: query_user_orders
+    path: /api/query_orders
+    method: GET
+    auth_required: true
+    request_fields:
+      - symbol
+      - status
+      - order_type
+      - start
+      - end
+      - last_id
+      - limit
+    response_fields:
+      - result
+      - total
+      - page_size
+  - name: query_open_orders
+    path: /api/query_open_orders
+    method: GET
+    auth_required: true
+    request_fields:
+      - symbol
+      - limit
+    response_fields:
+      - result
+      - total
+      - page_size
+  - name: query_trades
+    path: /api/query_trades
+    method: GET
+    auth_required: true
+    request_fields:
+      - symbol
+      - last_id
+      - side
+      - start
+      - end
+      - limit
+    response_fields:
+      - result
+      - total
+      - page_size
+  - name: query_position_config
+    path: /api/query_position_config
+    method: GET
+    auth_required: true
+    request_fields:
+      - symbol
+    response_fields:
+      - symbol
+      - leverage
+      - margin_mode
+  - name: query_positions
+    path: /api/query_positions
+    method: GET
+    auth_required: true
+    request_fields:
+      - symbol
+    response_fields:
+      - symbol
+      - qty
+      - entry_price
+      - mark_price
+      - margin_mode
+  - name: query_balance
+    path: /api/query_balance
+    method: GET
+    auth_required: true
+    request_fields: []
+    response_fields:
+      - isolated_balance
+      - isolated_upnl
+      - cross_balance
+      - cross_margin
+      - cross_upnl
+      - locked
+      - cross_available
+      - balance
+      - upnl
+      - equity
+      - pnl_freeze
+  - name: query_symbol_info
+    path: /api/query_symbol_info
+    method: GET
+    auth_required: false
+    request_fields:
+      - symbol
+    response_fields:
+      - symbol
+      - base_asset
+      - quote_asset
+      - price_tick_decimals
+      - qty_tick_decimals
+      - min_order_qty
+  - name: query_symbol_market
+    path: /api/query_symbol_market
+    method: GET
+    auth_required: false
+    request_fields:
+      - symbol
+    response_fields:
+      - symbol
+      - last_price
+      - mark_price
+      - index_price
+      - funding_rate
+      - volume_24h
+  - name: query_symbol_price
+    path: /api/query_symbol_price
+    method: GET
+    auth_required: false
+    request_fields:
+      - symbol
+    response_fields:
+      - symbol
+      - last_price
+      - mark_price
+      - index_price
+      - mid_price
+  - name: query_depth_book
+    path: /api/query_depth_book
+    method: GET
+    auth_required: false
+    request_fields:
+      - symbol
+    response_fields:
+      - asks
+      - bids
+      - symbol
+  - name: query_recent_trades
+    path: /api/query_recent_trades
+    method: GET
+    auth_required: false
+    request_fields:
+      - symbol
+    response_fields:
+      - price
+      - qty
+      - side
+      - time
+  - name: query_funding_rates
+    path: /api/query_funding_rates
+    method: GET
+    auth_required: false
+    request_fields:
+      - symbol
+      - start_time
+      - end_time
+    response_fields:
+      - funding_rate
+      - time
+  - name: get_kline_time
+    path: /api/kline/time
+    method: GET
+    auth_required: false
+    request_fields: []
+    response_fields:
+      - server_time
+  - name: get_kline_history
+    path: /api/kline/history
+    method: GET
+    auth_required: false
+    request_fields:
+      - symbol
+      - from
+      - to
+      - resolution
+      - countback
+    response_fields:
+      - t
+      - o
+      - h
+      - l
+      - c
+      - v
+  - name: health
+    path: /api/health
+    method: GET
+    auth_required: false
+    request_fields: []
+    response_fields:
+      - status
+websocket_public:
+  ws_public_url: wss://perps.standx.com/ws-stream/v1
+  channels:
+    - { channel: price, symbol: "<symbol>" }
+    - { channel: depth_book, symbol: "<symbol>" }
+    - { channel: public_trade, symbol: "<symbol>" }
+  heartbeat_interval_sec: 10
+websocket_private:
+  ws_private_url: wss://perps.standx.com/ws-api/v1
+  auth_required: true
+  order_updates: true
+  fills: true
+  balance_updates: true
+order_model:
+  order_types:
+    - limit
+    - market
+  order_states:
+    - open
+    - canceled
+    - filled
+    - rejected
+    - untriggered
+  partial_fill_behavior: UNKNOWN
+  cancel_behavior: UNKNOWN
+instrument_metadata:
+  instrument_id_format: BASE-QUOTE (e.g., BTC-USD)
+  price_precision: price_tick_decimals
+  quantity_precision: qty_tick_decimals
+  contract_size: UNKNOWN
+special_notes:
+  - "StandX is a Perps DEX on mainnet across BNB and Solana chains, powered by its native yield-bearing DUSD stablecoin."
+  - "Uses JWT authentication (Bearer token, 7-day validity) + Ed25519 body signatures for certain endpoints."
+  - "Environment variable STANDX_API_TOKEN for JWT Bearer token authentication."
+  - "Environment variable STANDX_REQUEST_ED25519_PRIVATE_KEY for Ed25519 private key signing."
+  - "new_order and cancel_order require x-session-id header to correlate with WebSocket order response stream."
+  - "Supports both cross and isolated margin modes."
+  - "Supports take-profit (tp_price) and stop-loss (sl_price) order types."
+  - "Reduce-only orders have maximum qty = position_qty - cumulative_qty of pending reduce_only orders."
+  - "WebSocket connection maximum duration: 24 hours (auto-terminates)."
+  - "Server sends ping frames every 10 seconds, client must respond with pong within 5 minutes."
+  - "API documentation is under construction with subject to change."
+  - "Base URL is unversioned in REST paths but endpoints include /api prefix."
+  - "Market orders (IOC) execute immediately and cancel unfilled portion."
+  - "ALO (Add Liquidity Only) adds to book without immediate execution."
+  - "Order rejection can occur during matching due to mis-qualification in async matching network."
+  - "Use Order Response WebSocket stream for real-time execution status updates."
+  - "Supports time_in_force values: gtc, ioc, alo."
+  - "Maker fee and taker fee vary per symbol - query via query_symbol_info endpoint."
+  - "Leverage up to 20x available on BTC-USD (def_leverage)."
+  - "Position config includes leverage and margin_mode per symbol."
+  - "Testnet URL: https://testnet.perps.standx.com"
+  - "Region endpoint: https://geo.standx.com/v1/region for server time and region info."

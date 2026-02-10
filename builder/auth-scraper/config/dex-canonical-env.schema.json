@@ -1,0 +1,553 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/dex-canonical-env.schema.json",
+  "title": "Canonical DEX/CEX Auth Env Config",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "LIGHTER": {
+      "$ref": "#/$defs/LighterConfig"
+    },
+    "PARADEX": {
+      "$ref": "#/$defs/ParadexConfig"
+    },
+    "EDGEX": {
+      "$ref": "#/$defs/EdgexConfig"
+    },
+    "HYPERLIQUID": {
+      "$ref": "#/$defs/HyperliquidConfig"
+    },
+    "BACKPACK": {
+      "$ref": "#/$defs/BackpackConfig"
+    },
+    "STANDX": {
+      "$ref": "#/$defs/StandxConfig"
+    },
+    "GRVT": {
+      "$ref": "#/$defs/GrvtConfig"
+    },
+    "EXTENDED": {
+      "$ref": "#/$defs/ExtendedConfig"
+    },
+    "APEX_OMNI": {
+      "$ref": "#/$defs/ApexOmniConfig"
+    },
+    "NADO": {
+      "$ref": "#/$defs/NadoConfig"
+    },
+    "01XYZ": {
+      "$ref": "#/$defs/01XYZConfig"
+    }
+  },
+  "$defs": {
+    "NonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "Hex0x": {
+      "type": "string",
+      "pattern": "^0x[0-9a-fA-F]+$"
+    },
+    "HexNo0x": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]+$"
+    },
+    "HttpUrl": {
+      "type": "string",
+      "pattern": "^https?://"
+    },
+    "WsUrl": {
+      "type": "string",
+      "pattern": "^wss?://"
+    },
+    "IntegerString": {
+      "type": "string",
+      "pattern": "^[0-9]+$"
+    },
+    "LighterConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "LIGHTER_BASE_URL",
+        "LIGHTER_ACCOUNT_INDEX",
+        "LIGHTER_API_KEY_INDEX",
+        "LIGHTER_API_KEY_PRIVATE_KEY"
+      ],
+      "properties": {
+        "LIGHTER_BASE_URL": {
+          "$ref": "#/$defs/HttpUrl"
+        },
+        "LIGHTER_ACCOUNT_INDEX": {
+          "$ref": "#/$defs/IntegerString"
+        },
+        "LIGHTER_API_KEY_INDEX": {
+          "$ref": "#/$defs/IntegerString"
+        },
+        "LIGHTER_API_KEY_PRIVATE_KEY": {
+          "$ref": "#/$defs/HexNo0x"
+        },
+        "LIGHTER_ETH_PRIVATE_KEY": {
+          "$ref": "#/$defs/Hex0x"
+        },
+        "LIGHTER_WS_URL": {
+          "$ref": "#/$defs/WsUrl"
+        }
+      },
+      "x-doc": {
+        "exchange": "LIGHTER",
+        "sources": [
+          "https://apidocs.lighter.xyz/docs/get-started-for-programmers-1",
+          "https://github.com/elliottech/lighter-python"
+        ],
+        "discovered_headers": [],
+        "discovered_paths": [
+          "//github",
+          "//mainnet",
+          "/api/v1/txs",
+          "/api/v1/pnl",
+          "/api/v1/sendTx",
+          "/api/v1/trades",
+          "/api/v1/apikeys",
+          "/api/v1/account",
+          "/api/v1/fundings",
+          "/api/v1/nextNonce",
+          "/api/v1/orderBooks",
+          "/api/v1/sendTxBatch",
+          "/api/v1/recentTrades",
+          "/api/v1/exchangeStats",
+          "/api/v1/txFromL1TxHash",
+          "/api/v1/orderBookOrders",
+          "/api/v1/deposit/history",
+          "/api/v1/withdraw/history",
+          "/api/v1/orderBookDetails",
+          "/api/v1/accountsByL1Address",
+          "/api/v1/accountInactiveOrders"
+        ]
+      }
+    },
+    "ParadexConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "PARADEX_ENV"
+      ],
+      "properties": {
+        "PARADEX_ENV": {
+          "type": "string",
+          "enum": [
+            "MAINNET",
+            "TESTNET"
+          ]
+        },
+        "PARADEX_MAIN_ACCOUNT_L2_ADDRESS": {
+          "$ref": "#/$defs/Hex0x"
+        },
+        "PARADEX_SUBKEY_PRIVATE_KEY": {
+          "$ref": "#/$defs/Hex0x"
+        },
+        "PARADEX_SUBKEY_PUBLIC_KEY": {
+          "$ref": "#/$defs/Hex0x"
+        },
+        "PARADEX_JWT": {
+          "$ref": "#/$defs/NonEmptyString"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": [
+              "PARADEX_SUBKEY_PRIVATE_KEY"
+            ]
+          },
+          "then": {
+            "required": [
+              "PARADEX_MAIN_ACCOUNT_L2_ADDRESS"
+            ]
+          }
+        }
+      ],
+      "x-doc": {
+        "exchange": "PARADEX",
+        "sources": [
+          "https://docs.paradex.trade/docs/trading/api-authentication",
+          "https://docs.paradex.trade/api/general-information/api-quick-start"
+        ],
+        "discovered_headers": [
+          "PARADEX-STARKNET-ACCOUNT",
+          "PARADEX-STARKNET-SIGNATURE"
+        ],
+        "discovered_paths": [
+          "//api",
+          "/v1/balance",
+          "/v1/markets"
+        ]
+      }
+    },
+    "EdgexConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "EDGEX_BASE_URL",
+        "EDGEX_ACCOUNT_ID",
+        "EDGEX_PRIVATE_KEY"
+      ],
+      "properties": {
+        "EDGEX_BASE_URL": {
+          "$ref": "#/$defs/HttpUrl"
+        },
+        "EDGEX_ACCOUNT_ID": {
+          "$ref": "#/$defs/IntegerString"
+        },
+        "EDGEX_PRIVATE_KEY": {
+          "$ref": "#/$defs/NonEmptyString"
+        },
+        "EDGEX_WS_URL": {
+          "$ref": "#/$defs/WsUrl"
+        }
+      },
+      "x-doc": {
+        "exchange": "EDGEX",
+        "sources": [
+          "https://edgexhelp.zendesk.com/hc/en-001/articles/14562697621391-Authentication"
+        ],
+        "discovered_headers": [],
+        "discovered_paths": []
+      }
+    },
+    "HyperliquidConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "HYPERLIQUID_API_URL",
+        "HYPERLIQUID_ACCOUNT_ADDRESS",
+        "HYPERLIQUID_SECRET_KEY"
+      ],
+      "properties": {
+        "HYPERLIQUID_API_URL": {
+          "$ref": "#/$defs/HttpUrl"
+        },
+        "HYPERLIQUID_ACCOUNT_ADDRESS": {
+          "$ref": "#/$defs/Hex0x"
+        },
+        "HYPERLIQUID_SECRET_KEY": {
+          "$ref": "#/$defs/Hex0x"
+        }
+      },
+      "x-doc": {
+        "exchange": "HYPERLIQUID",
+        "sources": [
+          "https://www.quicknode.com/docs/hyperliquid/info-endpoints"
+        ],
+        "discovered_headers": [],
+        "discovered_paths": [
+          "//docs-demo",
+          "//your-endpoint"
+        ]
+      }
+    },
+    "BackpackConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "BACKPACK_BASE_URL",
+        "BACKPACK_API_KEY",
+        "BACKPACK_PRIVATE_KEY"
+      ],
+      "properties": {
+        "BACKPACK_BASE_URL": {
+          "$ref": "#/$defs/HttpUrl"
+        },
+        "BACKPACK_API_KEY": {
+          "$ref": "#/$defs/NonEmptyString"
+        },
+        "BACKPACK_PRIVATE_KEY": {
+          "$ref": "#/$defs/NonEmptyString"
+        }
+      },
+      "x-doc": {
+        "exchange": "BACKPACK",
+        "sources": [
+          "https://docs.backpack.exchange/",
+          "https://support.backpack.exchange/api-docs"
+        ],
+        "discovered_headers": [
+          "X-API",
+          "X-API-KEY",
+          "X-SIGNATURE",
+          "X-TIMESTAMP",
+          "X-WINDOW"
+        ],
+        "discovered_paths": [
+          "//ws",
+          "//api",
+          "/api/v1/rfq",
+          "/api/v1/ping",
+          "/api/v1/time",
+          "/api/v1/order",
+          "/api/v1/depth",
+          "/api/v1/klines",
+          "/api/v1/assets",
+          "/api/v1/ticker",
+          "/api/v1/status",
+          "/api/v1/orders",
+          "/api/v1/market",
+          "/api/v1/trades",
+          "/api/v1/capital",
+          "/api/v1/markets",
+          "/api/v1/account",
+          "/v1/history/rfq",
+          "/api/v1/wallets",
+          "/api/v1/tickers",
+          "/v1/history/dust",
+          "/api/v1/strategy",
+          "/api/v1/position",
+          "/api/v1/rfq/quote",
+          "/v1/history/quote",
+          "/v1/history/fills",
+          "/v1/history/orders",
+          "/api/v1/collateral",
+          "/api/v1/markPrices",
+          "/api/v1/borrowLend",
+          "/api/v1/rfq/cancel",
+          "/api/v1/strategies",
+          "/api/v1/prediction",
+          "/api/v1/rfq/accept",
+          "/v1/history/funding",
+          "/api/v1/rfq/refresh",
+          "/v1/history/rfq/fill",
+          "/v1/history/interest",
+          "/api/v1/fundingRates",
+          "/api/v1/openInterest",
+          "/v1/capital/deposits",
+          "/v1/history/position",
+          "/v1/history/quote/fill",
+          "/v1/history/strategies",
+          "/api/v1/borrowLend/apy",
+          "/v1/history/borrowLend",
+          "/v1/history/settlement",
+          "/api/v1/trades/history",
+          "/v1/capital/withdrawals",
+          "/api/v1/prediction/tags",
+          "/api/v1/borrowLend/markets",
+          "/api/v1/capital/collateral",
+          "/api/v1/account/convertDust",
+          "/v1/capital/deposit/address",
+          "/api/v1/account/limits/order",
+          "/api/v1/borrowLend/positions",
+          "/api/v1/account/limits/borrow",
+          "/v1/history/borrowLend/positions",
+          "/api/v1/account/limits/withdrawal",
+          "/api/v1/borrowLend/markets/history",
+          "/api/v1/borrowLend/position/liquidationPrice"
+        ]
+      }
+    },
+    "StandxConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "STANDX_BASE_URL",
+        "STANDX_API_TOKEN",
+        "STANDX_REQUEST_ED25519_PRIVATE_KEY"
+      ],
+      "properties": {
+        "STANDX_BASE_URL": {
+          "$ref": "#/$defs/HttpUrl"
+        },
+        "STANDX_API_TOKEN": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^eyJ"
+        },
+        "STANDX_REQUEST_ED25519_PRIVATE_KEY": {
+          "$ref": "#/$defs/NonEmptyString"
+        },
+        "STANDX_WS_MARKET_URL": {
+          "$ref": "#/$defs/WsUrl"
+        },
+        "STANDX_WS_API_URL": {
+          "$ref": "#/$defs/WsUrl"
+        }
+      },
+      "x-doc": {
+        "exchange": "STANDX",
+        "sources": [
+          "https://docs.standx.com/standx-api/standx-api"
+        ],
+        "discovered_headers": [],
+        "discovered_paths": [
+          "//perps"
+        ]
+      }
+    },
+    "GrvtConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "GRVT_ENV",
+        "GRVT_TRADING_ACCOUNT_ID",
+        "GRVT_API_KEY",
+        "GRVT_PRIVATE_KEY"
+      ],
+      "properties": {
+        "GRVT_ENV": {
+          "type": "string",
+          "enum": [
+            "testnet",
+            "mainnet"
+          ]
+        },
+        "GRVT_TRADING_ACCOUNT_ID": {
+          "$ref": "#/$defs/NonEmptyString"
+        },
+        "GRVT_API_KEY": {
+          "$ref": "#/$defs/NonEmptyString"
+        },
+        "GRVT_PRIVATE_KEY": {
+          "$ref": "#/$defs/NonEmptyString"
+        },
+        "GRVT_BASE_URL": {
+          "$ref": "#/$defs/HttpUrl"
+        },
+        "GRVT_WS_URL": {
+          "$ref": "#/$defs/WsUrl"
+        }
+      },
+      "x-doc": {
+        "exchange": "GRVT",
+        "sources": [
+          "https://api-docs.grvt.io/"
+        ],
+        "discovered_headers": [],
+        "discovered_paths": []
+      }
+    },
+    "ExtendedConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "EXTENDED_API_KEY",
+        "EXTENDED_STARK_KEY_PUBLIC",
+        "EXTENDED_STARK_KEY_PRIVATE",
+        "EXTENDED_VAULT"
+      ],
+      "properties": {
+        "EXTENDED_BASE_URL": {
+          "$ref": "#/$defs/HttpUrl"
+        },
+        "EXTENDED_API_KEY": {
+          "$ref": "#/$defs/NonEmptyString"
+        },
+        "EXTENDED_STARK_KEY_PUBLIC": {
+          "$ref": "#/$defs/NonEmptyString"
+        },
+        "EXTENDED_STARK_KEY_PRIVATE": {
+          "$ref": "#/$defs/NonEmptyString"
+        },
+        "EXTENDED_VAULT": {
+          "$ref": "#/$defs/NonEmptyString"
+        }
+      }
+    },
+    "ApexOmniConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "APEX_API_KEY",
+        "APEX_API_SECRET",
+        "APEX_API_PASSPHRASE",
+        "APEX_OMNI_KEY_SEED"
+      ],
+      "properties": {
+        "APEX_BASE_URL": {
+          "$ref": "#/$defs/HttpUrl"
+        },
+        "APEX_API_KEY": {
+          "$ref": "#/$defs/NonEmptyString"
+        },
+        "APEX_API_SECRET": {
+          "$ref": "#/$defs/NonEmptyString"
+        },
+        "APEX_API_PASSPHRASE": {
+          "$ref": "#/$defs/NonEmptyString"
+        },
+        "APEX_OMNI_KEY_SEED": {
+          "$ref": "#/$defs/NonEmptyString"
+        }
+      }
+    },
+    "NadoConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "NADO_CHAIN",
+        "NADO_WALLET_PRIVATE_KEY"
+      ],
+      "properties": {
+        "NADO_BASE_URL": {
+          "$ref": "#/$defs/HttpUrl"
+        },
+        "NADO_CHAIN": {
+          "$ref": "#/$defs/NonEmptyString"
+        },
+        "NADO_WALLET_PRIVATE_KEY": {
+          "$ref": "#/$defs/Hex0x"
+        },
+        "NADO_SUBACCOUNT_OWNER": {
+          "$ref": "#/$defs/Hex0x"
+        },
+        "NADO_SUBACCOUNT_NAME": {
+          "$ref": "#/$defs/NonEmptyString"
+        }
+      },
+      "x-doc": {
+        "exchange": "NADO",
+        "sources": [
+          "https://docs.nado.xyz/developer-resources/api"
+        ],
+        "discovered_headers": [],
+        "discovered_paths": []
+      }
+    },
+    "01XYZConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "01XYZ_API_KEY",
+        "01XYZ_API_SECRET"
+      ],
+      "properties": {
+        "01XYZ_BASE_URL": {
+          "$ref": "#/$defs/HttpUrl"
+        },
+        "01XYZ_WS_URL": {
+          "$ref": "#/$defs/WsUrl"
+        },
+        "01XYZ_API_KEY": {
+          "$ref": "#/$defs/NonEmptyString"
+        },
+        "01XYZ_API_SECRET": {
+          "$ref": "#/$defs/NonEmptyString"
+        },
+        "01XYZ_API_PASSPHRASE": {
+          "$ref": "#/$defs/NonEmptyString"
+        }
+      },
+      "x-doc": {
+        "exchange": "01XYZ",
+        "sources": [
+          "https://docs.01.xyz/"
+        ],
+        "discovered_headers": [],
+        "discovered_paths": [
+          "//api",
+          "//zo-devnet",
+          "//zo-mainnet"
+        ]
+      }
+    }
+  },
+  "x-enrichment": {
+    "note": "Schema regenerated from canonical rules; x-doc is best-effort scraping hints."
+  }
+}

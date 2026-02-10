@@ -53,6 +53,11 @@ scaffold_*.py
 research_task*.txt
 rust_check_debug.log
 *.bak
+# Pipeline state
+.state/
+# Auth scraper
+builder/auth-scraper/venv/
+builder/auth-scraper/temp_*_pkg/
 
 # Build artifacts
 *.pyc

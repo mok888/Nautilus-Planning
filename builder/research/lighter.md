@@ -25,20 +25,17 @@ Source: https://apidocs.lighter.xyz/docs/get-started, https://apidocs.lighter.xy
 
 ## Authentication
 
-- **Auth method**: API key index + private key signature using SignerClient
-  - Each API key has a public and private key pair
-  - Transactions are signed using Schnorr signature scheme
+- **Algorithm**: Schnorr signatures on BabyJubJub curve (Poseidon hash).
+- **Tooling**: Requires `lighter-sdk` (Python) or `lighter-v1-binding` (Rust) to handle cryptographic primitives. Using standard HMAC-SHA256 will FAIL.
+- **Mechanism**:
+  1.  Generate an auth token using the private key (valid for a specific duration).
+  2.  Pass this token as an `auth` query parameter (e.g., `?auth=<token>`) or `Auth` header.
+- **Implementation Note**:
+  - The Python `auth-scraper` uses `lighter.signer_client.get_signer()` (via ctypes) to generate this token without full async overhead.
+  - The `auth` token includes the signature, expiry, and nonce information.
+  - Public endpoints usually return 403 Forbidden on Mainnet (likely WAF), but authenticated private endpoints (`/api/v1/accountLimits`) work correctly.
 
-- **Required headers**:
-  - For REST API: `auth` token generated via `create_auth_token_with_expiry()`
-  - For WebSocket: `auth` parameter in subscription messages
-
-- **Timestamp rules**:
-  - Uses `ExpiredAt` timestamp (milliseconds)
-  - Nonce management is per API_KEY index
-  - Nonce must be incremented for each transaction
-
-Source: https://apidocs.lighter.xyz/docs/api-keys, https://apidocs.lighter.xyz/docs/nonce-management
+Source: Verified via `tools/check_lighter_login.py` (see `auth-scraper` repo).
 
 ## Rate Limits
 

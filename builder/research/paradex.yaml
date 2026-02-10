@@ -1,0 +1,422 @@
+exchange_identity:
+  exchange_name: Paradex
+  venue_id: PARADEX
+  exchange_type: DEX
+market_coverage:
+  spot_supported: false
+  perps_supported: true
+  futures_supported: false
+  options_supported: false
+rest_api:
+  rest_base_url: https://api.prod.paradex.trade/v1
+  testnet_base_url: https://api.testnet.paradex.trade/v1
+  api_version: v1
+  rate_limits:
+    - rule: 10 requests per account per second
+    - rule: JWT expires after 5 minutes - must refresh regularly
+    - rule: For WebSocket 24 hour max connection duration
+authentication:
+  auth_type: SIGNATURE
+  headers:
+    - PARADEX-STARKNET-ACCOUNT
+    - PARADEX-STARKNET-SIGNATURE
+    - PARADEX-TIMESTAMP
+    - PARADEX-SIGNATURE-EXPIRATION
+    - Authorization
+  timestamp_format: seconds
+  signature_payload: SDK_GENERATED_STRUCT # EIP-712 / StarkNet TypedData
+  hash_algo: PEDERSEN # or Poseidon (StarkNet specific)
+  encoding: decimal_string_array
+  passphrase_required: false
+rest_endpoints:
+  - name: Get JWT
+    path: /auth
+    method: POST
+    auth_required: false
+    request_fields:
+      - bearer: JWT bearer token from subkey mode
+    response_fields:
+      - jwt_token
+      - PARADEX-AUTHORIZE-ISOLATED-MARKETS
+  - name: Create New Order
+    path: /api/new_order
+    method: POST
+    auth_required: true
+    request_fields:
+      - symbol
+      - side
+      - order_type
+      - qty
+      - time_in_force
+      - reduce_only
+      - price (optional)
+      - cl_ord_id (optional)
+    response_fields:
+      - code
+      - message
+      - request_id
+  - name: Cancel Order
+    path: /api/cancel_order
+    method: POST
+    auth_required: true
+    request_fields:
+      - order_id
+      - cl_ord_id
+    response_fields:
+      - code
+      - message
+      - request_id
+  - name: Cancel Multiple Orders
+    path: /api/cancel_orders
+    method: POST
+    auth_required: true
+    request_fields:
+      - order_id_list
+      - cl_ord_id_list
+    response_fields:
+      - code
+      - message
+      - request_id
+  - name: Change Leverage
+    path: /api/change_leverage
+    method: POST
+    auth_required: true
+    request_fields:
+      - symbol
+      - leverage
+    response_fields:
+      - code
+      - message
+      - request_id
+  - name: Change Margin Mode
+    path: /api/change_margin_mode
+    method: POST
+    auth_required: true
+    request_fields:
+      - symbol
+      - margin_mode
+    response_fields:
+      - code
+      - message
+      - request_id
+  - name: Transfer Margin
+    path: /api/transfer_margin
+    method: POST
+    auth_required: true
+    request_fields:
+      - symbol
+      - amount_in
+    response_fields:
+      - code
+      - message
+      - request_id
+  - name: Query Order
+    path: /api/query_order
+    method: GET
+    auth_required: true
+    request_fields:
+      - order_id
+      - cl_ord_id
+    response_fields:
+      - id
+      - symbol
+      - side
+      - order_type
+      - status
+      - price
+      - qty
+  - name: Query User Orders
+    path: /api/query_orders
+    method: GET
+    auth_required: true
+    request_fields:
+      - symbol
+      - status
+      - order_type
+      - start
+      - end
+      - last_id
+      - limit
+    response_fields:
+      - result
+      - total
+      - page_size
+  - name: Query All Open Orders
+    path: /api/query_open_orders
+    method: GET
+    auth_required: true
+    request_fields:
+      - symbol
+      - limit
+    response_fields:
+      - result
+      - total
+      - page_size
+  - name: Query User Trades
+    path: /api/query_trades
+    method: GET
+    auth_required: true
+    request_fields:
+      - symbol
+      - last_id
+      - side
+      - start
+      - end
+      - limit
+    response_fields:
+      - result
+      - total
+      - page_size
+  - name: Query Position Config
+    path: /api/query_position_config
+    method: GET
+    auth_required: true
+    request_fields:
+      - symbol
+    response_fields:
+      - symbol
+      - leverage
+      - margin_mode
+  - name: Query User Positions
+    path: /api/query_positions
+    method: GET
+    auth_required: true
+    request_fields:
+      - symbol
+    response_fields:
+      - symbol
+      - qty
+      - entry_price
+      - mark_price
+      - margin_mode
+  - name: Query User Balance
+    path: /api/query_balance
+    method: GET
+    auth_required: true
+    request_fields: []
+    response_fields:
+      - isolated_balance
+      - isolated_upnl
+      - cross_balance
+      - cross_margin
+      - cross_upnl
+      - locked
+      - cross_available
+      - balance
+      - upnl
+      - equity
+      - pnl_freeze
+  - name: Query Symbol Info
+    path: /api/query_symbol_info
+    method: GET
+    auth_required: false
+    request_fields:
+      - symbol
+    response_fields:
+      - symbol
+      - base_asset
+      - quote_asset
+      - price_tick_decimals
+      - qty_tick_decimals
+      - min_order_qty
+  - name: Query Symbol Market
+    path: /api/query_symbol_market
+    method: GET
+    auth_required: false
+    request_fields:
+      - symbol
+    response_fields:
+      - symbol
+      - last_price
+      - mark_price
+      - index_price
+      - funding_rate
+      - volume_24h
+  - name: Query Symbol Price
+    path: /api/query_symbol_price
+    method: GET
+    auth_required: false
+    request_fields:
+      - symbol
+    response_fields:
+      - symbol
+      - last_price
+      - mark_price
+      - index_price
+      - mid_price
+  - name: Query Depth Book
+    path: /api/query_depth_book
+    method: GET
+    auth_required: false
+    request_fields:
+      - symbol
+    response_fields:
+      - asks
+      - bids
+      - symbol
+  - name: Query Recent Trades
+    path: /api/query_recent_trades
+    method: GET
+    auth_required: false
+    request_fields:
+      - symbol
+    response_fields:
+      - price
+      - qty
+      - side
+      - time
+  - name: Query Funding Rates
+    path: /api/query_funding_rates
+    method: GET
+    auth_required: false
+    request_fields:
+      - symbol
+      - start_time
+      - end_time
+    response_fields:
+      - funding_rate
+      - time
+  - name: Get Server Time
+    path: /api/kline/time
+    method: GET
+    auth_required: false
+    request_fields: []
+    response_fields:
+      - server_time
+  - name: Get Kline History
+    path: /api/kline/history
+    method: GET
+    auth_required: false
+    request_fields:
+      - symbol
+      - from
+      - to
+      - resolution
+      - countback
+    response_fields:
+      - t
+      - o
+      - h
+      - l
+      - c
+      - v
+  - name: Health Check
+    path: /api/health
+    method: GET
+    auth_required: false
+    request_fields: []
+    response_fields:
+      - status
+websocket_public:
+  ws_public_url: wss://ws.api.testnet.paradex.trade/v1
+  testnet_ws_url: wss://ws.api.prod.paradex.trade/v1
+  channels:
+    - markets_summary - Market summary data
+    - order - Order lifecycle updates
+    - position - Position state changes
+    - balance - Account balance updates
+    - trades - Trade executions
+    - orderbook_depth - Orderbook depth updates
+    - funding_rates - Funding rate updates
+  heartbeat_interval_sec: 30
+websocket_private:
+  ws_private_url: wss://ws.api.prod.paradex.trade/v1
+  testnet_ws_url: wss://ws.api.prod.paradex.trade/v1
+  auth_required: true
+  order_updates: true
+  fills: true
+  balance_updates: true
+order_model:
+  order_types:
+    - LIMIT
+    - MARKET
+  order_states:
+    - OPEN
+    - FILLED
+    - CANCELED
+    - REJECTED
+    - UNTRIGGERED
+  partial_fill_behavior: IMMEDIATE
+  cancel_behavior: CAN_PARTIAL
+instrument_metadata:
+  instrument_id_format: BASE-QUOTE
+  price_precision: price_tick_decimals
+  quantity_precision: qty_tick_decimals
+  contract_size: UNKNOWN
+special_notes:
+  - Paradex is a StarkNet-based perpetual futures DEX on mainnet.
+  - Uses StarkNet signatures (Pedersen/Poseidon hash) with EIP-712 typed data encoding.
+  - Requires paradex-py SDK (v0.5.4+) for Starknet cryptography.
+  - Supports L2-only 'Subkey' auth mode (requires L2 private key and L2 account address).
+  - JWT tokens expire after 5 minutes - applications must refresh regularly.
+  - WebSocket connections limited to 24 hours maximum duration.
+  - Server sends ping frames every 10 seconds, clients must respond with pong within 5 minutes.
+  - Supports both cross and isolated margin modes.
+  - Supports time_in_force values: gtc, ioc, alo.
+  - Maker fee and taker fee vary per symbol - query via query_symbol_info.
+  - Leverage up to 20x available on BTC-USD (def_leverage).
+  - Position config includes leverage and margin_mode per symbol.
+  - Order placement is asynchronous - subscribe to order response WebSocket stream for execution status.
+  - API documentation is complete with many endpoints for orders, positions, trades, vaults, transfers.
+  - Environment variable PARADEX_STARKNET_ACCOUNT for L2 account address (Subkey mode).
+  - Environment variable PARADEX_STARKNET_SIGNATURE for Starknet private key signing.
+  - Reduces-only orders have maximum qty = position_qty - cumulative_qty of pending reduce_only orders.
+  - Markets are specified as BASE-QUOTE format (e.g., BTC-USD-PERP).
+  - "SDK available: @paradex/sdk (npm), paradex-py (Python), with Rust/TypeScript support."
+  - "Available markets listed via /markets endpoint or /account/market endpoint."
+
+rest_endpoints:
+  - name: Account Summary
+    path: /account
+    method: GET
+    auth_required: true
+    request_fields: []
+    response_fields: [UNKNOWN]
+  - name: Open Orders
+    path: /orders
+    method: GET
+    auth_required: true
+    request_fields: []
+    response_fields: [UNKNOWN]
+  - name: Tickers (Markets Summary)
+    path: /markets/summary
+    method: GET
+    auth_required: false
+    request_fields: []
+    response_fields: [UNKNOWN]
+
+websocket_public:
+  ws_public_url: wss://ws.prod.paradex.trade/v1
+  testnet_ws_url: wss://ws.testnet.paradex.trade/v1
+  channels:
+    - name: markets_summary
+  heartbeat_interval_sec: 30
+
+websocket_private:
+  ws_private_url: wss://ws.prod.paradex.trade/v1
+  testnet_ws_url: wss://ws.testnet.paradex.trade/v1
+  auth_required: true
+  order_updates: true
+  fills: true
+  balance_updates: true
+
+order_model:
+  order_types: [LIMIT, MARKET]
+  order_states: [OPEN, FILLED, CANCELED]
+  partial_fill_behavior: IMMEDIATE
+  cancel_behavior: CAN_PARTIAL
+
+instrument_metadata:
+  instrument_id_format: BASE-QUOTE
+  price_precision: UNKNOWN
+  quantity_precision: UNKNOWN
+  contract_size: UNKNOWN
+
+special_notes:
+  - "Use `paradex-py` SDK for all signing operations."
+  - "Authentication uses Starknet-curve signatures (Pedersen/Poseidon hash)."
+  - "Use `paradex-py` SDK for all signing operations."
+  - "Authentication uses Starknet-curve signatures (Pedersen/Poseidon hash)."
+  - "Subkey mode requires only L2 Private Key and L2 Account Address."
+  - "Paradex is a StarkNet-based perpetual futures DEX on mainnet."
+  - "Requires paradex-py SDK (v0.5.4+) for Starknet cryptography."

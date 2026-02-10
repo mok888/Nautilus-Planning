@@ -1,7 +1,6 @@
 use std::sync::Arc;
 use nautilus_network::http::HttpClient;
-use nautilus_common::live::get_runtime;
-use crate::common::credential::{{EXCHANGE_NAME}}Credential;
+use nautilus_common::runtime::get_runtime;
 use anyhow;
 
 /// Raw client matching venue API endpoints.
@@ -25,7 +24,7 @@ impl {{EXCHANGE_NAME}}HttpClient {
 
     pub fn request_something(&self) -> anyhow::Result<String> {
         // Enforce global runtime usage for blocking calls
-        let inner = self.inner.clone();
+        let _inner = self.inner.clone();
         get_runtime().block_on(async move {
             // async logic using inner.client
             Ok("response".to_string())

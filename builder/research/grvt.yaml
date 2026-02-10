@@ -1,0 +1,131 @@
+exchange_identity:
+  exchange_name: Grvt
+  venue_id: GRVT
+  exchange_type: DEX
+
+market_coverage:
+  spot_supported: false
+  perps_supported: true
+  futures_supported: true
+  options_supported: true
+
+rest_api:
+  rest_base_url: https://edge.grvt.io/api/
+  api_version: v1
+  rate_limits:
+    - rule: "9-tier model based on assets and trading volume"
+    - rule: "Rate limits tracked separately for each trading pair"
+
+authentication:
+  auth_type: SIGNATURE
+  headers:
+    - GRVT-API-KEY
+    - GRVT-SIGNATURE
+    - GRVT-TIMESTAMP
+    - X-Grvt-Account-Id
+  timestamp_format: MILLISECONDS
+  signature_payload: "{timestamp}{method}{path}{body}"
+  hash_algo: ed25519
+  encoding: hex
+  passphrase_required: false
+
+rest_endpoints:
+  - name: get_health
+    path: /health
+    method: GET
+    auth_required: false
+    request_fields: []
+    response_fields:
+      - status
+
+  - name: create_order_full
+    path: full/v1/create_order
+    method: POST
+    auth_required: true
+    request_fields:
+      - order
+    response_fields:
+      - order_id
+
+  - name: create_order_lite
+    path: lite/v1/create_order
+    method: POST
+    auth_required: true
+    request_fields:
+      - order
+    response_fields:
+      - order_id
+
+  - name: get_instrument_full
+    path: full/v1/instrument
+    method: POST
+    auth_required: true
+    request_fields:
+      - instrument
+    response_fields:
+      - result
+
+  - name: get_instrument_lite
+    path: lite/v1/instrument
+    method: POST
+    auth_required: true
+    request_fields:
+      - instrument
+    response_fields:
+      - result
+
+websocket_public:
+  ws_public_url: wss://trades.grvt.io/ws/full
+  channels:
+    - v1.book.s
+    - v1.mini.s
+    - v1.mini.d
+    - v1.order
+  heartbeat_interval_sec: UNKNOWN
+
+websocket_private:
+  ws_private_url: wss://trades.grvt.io/ws/full
+  auth_required: true
+  order_updates: true
+  fills: true
+  balance_updates: true
+  # Private WebSocket requires GRVT_COOKIE and X-Grvt-Account-Id headers
+
+order_model:
+  order_types:
+    - limit
+    - market
+  order_states:
+    - open
+    - filled
+    - canceled
+  partial_fill_behavior: UNKNOWN
+  cancel_behavior: UNKNOWN
+
+instrument_metadata:
+  instrument_id_format: BASE-QUOTE-DATE_FUTURE
+  # Perpetual: ETH_USDT_Perp, BTC_USDT_Perp
+  # Future: BTC_USDT_Fut_20Oct23
+  # Call: ETH_USDT_Call_20Oct23_2800
+  # Put: ETH_USDT_Put_20Oct23_2800
+  price_precision: 9
+  quantity_precision: 9
+  contract_size: 1
+
+special_notes:
+  - "GRVT is a regulated self-custodial DEX, with funds held on blockchain-secured smart contracts"
+  - "Powered by Matter Labs' Elastic Chain (ZKSync ZK Stack)"
+  - "Hybrid platform: combines CEX-style off-chain orderbook (sub-millisecond matching) with on-chain settlement"
+  - "Supports perpetual futures, options, on-chain strategies marketplace"
+  - "Requires API key (GRVT_API_KEY) and Ed25519 private key for signing"
+  - "EIP-712 signing with Ethereum private keys for order authentication"
+  - "Order payload carries signature for trustless settlement on ZKSync Hyperchain"
+  - "WebSocket uses JSON-RPC subscription format with stream and feed selectors"
+  - "Multi-environment: dev, staging, testnet, prod"
+  - "Rate limits tracked separately for each trading pair"
+  - "Supports both full and lite endpoint variants for performance vs simplicity"
+  - "Instrument format includes date for futures: BASE-QUOTE-Fut_20Oct23"
+  - "Precision: 9 decimal places for both price and quantity"
+  - "All REST requests should be made using POST method"
+  - "WebSocket supports authenticated and public streams"
+  - "Private WebSocket requires both GRVT_COOKIE and X-Grvt-Account-Id headers"

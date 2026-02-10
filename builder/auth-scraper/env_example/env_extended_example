@@ -1,0 +1,5 @@
+EXTENDED_BASE_URL=https://api.starknet.extended.exchange
+EXTENDED_API_KEY=replace_with_real_api_key
+EXTENDED_STARK_KEY_PUBLIC=replace_with_real_public_key
+EXTENDED_STARK_KEY_PRIVATE=replace_with_real_private_key
+EXTENDED_VAULT=replace_with_real_vault

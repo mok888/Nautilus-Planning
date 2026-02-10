@@ -1,0 +1,26 @@
+[project]
+name = "dex-auth-automation"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+  "requests>=2.31.0",
+  "beautifulsoup4>=4.12.0",
+  "lxml>=5.0.0",
+  "jsonschema>=4.21.0",
+  "pytest>=8.0.0",
+  "python-dotenv>=1.0.0",
+  "cryptography>=42.0.0",
+  "pynacl>=1.5.0",
+  "lighter-md5 @ git+https://github.com/elliottech/lighter-md5-python.git",
+  "paradex-py>=0.5.4",
+  "edgex-python-sdk @ git+https://github.com/edgex-Tech/edgex-python-sdk.git",
+  "ecdsa>=0.18.0",
+  "base58>=2.1.0",
+]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+markers = [
+  "integration: requires real credentials + network access",
+]

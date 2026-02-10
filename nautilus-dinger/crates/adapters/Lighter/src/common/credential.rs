@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use nautilus_common::config::get_or_env_var_opt;
+use nautilus_core::env::get_or_env_var_opt;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LighterCredential {
@@ -13,8 +13,8 @@ impl LighterCredential {
         api_key: Option<String>,
         api_secret: Option<String>,
     ) -> Result<Option<Self>, String> {
-        let api_key = get_or_env_var_opt("LIGHTER_API_KEY", api_key);
-        let api_secret = get_or_env_var_opt("LIGHTER_API_SECRET", api_secret);
+        let api_key = get_or_env_var_opt(api_key, "LIGHTER_API_KEY");
+        let api_secret = get_or_env_var_opt(api_secret, "LIGHTER_API_SECRET");
 
         match (api_key, api_secret) {
             (Some(api_key), Some(api_secret)) => Ok(Some(Self {

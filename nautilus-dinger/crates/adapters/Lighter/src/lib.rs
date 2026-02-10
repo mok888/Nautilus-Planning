@@ -19,8 +19,8 @@ pub mod testing;
 use pyo3::prelude::*;
 
 #[pymodule]
-fn lighter(_py: Python, m: &PyModule) -> PyResult<()> {
+fn lighter(m: &Bound<'_, PyModule>) -> PyResult<()> {
     #[cfg(feature = "python")]
-    python::register_modules(_py, m)?;
+    python::register_modules(m)?;
     Ok(())
 }

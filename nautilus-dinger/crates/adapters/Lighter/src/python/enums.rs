@@ -1,6 +1,6 @@
 use pyo3::prelude::*;
 
 #[pymodule]
-pub fn enums(_py: Python, m: &PyModule) -> PyResult<()> {
+pub fn enums(_m: &Bound<'_, PyModule>) -> PyResult<()> {
     Ok(())
 }

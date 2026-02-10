@@ -1,1 +1,7 @@
-{"rustc":5470738401306409665,"features":"[\"alloc\", \"default\", \"std\"]","declared_features":"[\"alloc\", \"default\", \"std\"]","targ
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+pub enum NadoHttpError {
+    #[error("Request failed: {0}")]
+    RequestFailed(String),
+}

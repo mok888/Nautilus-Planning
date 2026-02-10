@@ -1,1 +1,9 @@
-/tmp/tmpwskab9c_/target/debug/deps/parking_lot_core-47acf8f4783827c9.d: /home/mok/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/parking_lot_core-0.9.12/src/lib.rs /home/mok/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/parking_lot_core-0.
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+pub enum NadoError {
+    #[error("HTTP error: {0}")]
+    Http(#[from] crate::http::error::NadoHttpError),
+    #[error("WebSocket error: {0}")]
+    WebSocket(#[from] crate::websocket::error::NadoWebSocketError),
+}

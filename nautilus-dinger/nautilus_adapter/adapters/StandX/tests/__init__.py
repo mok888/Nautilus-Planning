@@ -1,0 +1,1 @@
+# StandX Adapter Tests

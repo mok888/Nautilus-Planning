@@ -1,5 +1,7 @@
 import os
 import time
+import random
+import subprocess
 import json
 from pathlib import Path
 from openai import OpenAI
@@ -84,6 +86,43 @@ def ask_llm(
     if provider == "oh-my-opencode" and model.startswith("zai-coding-plan/"):
         model = model.replace("zai-coding-plan/", "")
 
+    # Opencode CLI provider
+    if provider == "opencode-cli":
+        timeout_seconds = float(os.getenv("LLM_TIMEOUT_SECONDS", "300"))
+        debug = os.getenv("LLM_DEBUG", "").strip().lower() in {"1", "true", "yes"}
+        model_prefix = os.getenv("LLM_OPENCODE_MODEL_PREFIX", "zai-coding-plan/")
+        if "/" not in model:
+            model = f"{model_prefix}{model}"
+        if debug:
+            print(
+                f"DEBUG: opencode-cli model={model} timeout={timeout_seconds}s prompt_len={len(prompt)}",
+                flush=True,
+            )
+        result = subprocess.run(
+            ["opencode", "run", "--model", model, "--format", "json"],
+            input=prompt,
+            capture_output=True,
+            text=True,
+            timeout=timeout_seconds,
+        )
+        if result.returncode != 0:
+            raise RuntimeError(f"opencode-cli failed: {result.stderr or result.stdout}")
+        text_parts = []
+        for line in result.stdout.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                evt = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if evt.get("type") == "error":
+                raise RuntimeError(f"opencode-cli error: {evt}")
+            part = evt.get("part") or {}
+            if part.get("type") == "text":
+                text_parts.append(part.get("text", ""))
+        return "".join(text_parts).strip()
+
     # Define cache key early to avoid NameError
     cache_key = {
         "provider": provider,
@@ -116,15 +155,44 @@ def ask_llm(
     if max_tokens is not None:
         completion_kwargs["max_tokens"] = max_tokens
 
+    timeout_seconds = float(os.getenv("LLM_TIMEOUT_SECONDS", "300"))
+    debug = os.getenv("LLM_DEBUG", "").strip().lower() in {"1", "true", "yes"}
+    if debug:
+        print(
+            f"DEBUG: LLM request provider={provider} model={model} temp={temperature} "
+            f"timeout={timeout_seconds}s prompt_len={len(prompt)}",
+            flush=True,
+        )
+
+    env_retries = os.getenv("LLM_RETRIES")
+    if env_retries is not None:
+        try:
+            retries = int(env_retries)
+        except ValueError:
+            if debug:
+                print(f"DEBUG: Invalid LLM_RETRIES='{env_retries}', using default {retries}", flush=True)
+
     for attempt in range(retries + 1):
         try:
-            r = client.chat.completions.create(timeout=300.0, **completion_kwargs)
+            r = client.chat.completions.create(timeout=timeout_seconds, **completion_kwargs)
             out = r.choices[0].message.content
+            if debug:
+                print(f"DEBUG: LLM response received len={len(out)}", flush=True)
             if cache:
                 save_cache(cache_key, out)
             return out
         except Exception as e:
-            print(f"DEBUG: LLM Attempt {attempt} failed for model '{model}': {e}")
-            time.sleep(1)
+            err_text = str(e)
+            print(f"DEBUG: LLM Attempt {attempt} failed for model '{model}': {e}", flush=True)
+            # Exponential backoff on rate limit
+            if "429" in err_text or "rate limit" in err_text.lower():
+                base = 2 ** attempt
+                jitter = random.uniform(0.5, 1.5)
+                sleep_s = min(60.0, base * jitter)
+                if debug:
+                    print(f"DEBUG: Rate limit backoff sleeping {sleep_s:.1f}s", flush=True)
+                time.sleep(sleep_s)
+            else:
+                time.sleep(1)
 
     raise RuntimeError(f"LLM failed after {retries} retries for model '{model}'")

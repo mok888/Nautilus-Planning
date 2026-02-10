@@ -1,0 +1,7 @@
+NADO_BASE_URL=https://gateway.prod.nado.xyz/v1
+NADO_CHAIN=763373
+NADO_WALLET_PRIVATE_KEY=0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+# Optional: select subaccount to trade
+NADO_SUBACCOUNT_NAME=replace_with_subaccount_name
+# If needed by API later:
+# NADO_SUBACCOUNT_OWNER=0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
