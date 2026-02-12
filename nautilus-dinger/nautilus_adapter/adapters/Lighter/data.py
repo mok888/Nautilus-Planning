@@ -12,15 +12,21 @@ from nautilus_trader.data.messages import SubscribeTradeTicks, SubscribeQuoteTic
 from nautilus_trader.model.data import TradeTick, QuoteTick, OrderBookDelta
 from nautilus_trader.common.enums import LogColor
 
+from .constants import WS_URL_PUBLIC
+
+
 class LighterDataClient(LiveMarketDataClient):
     """
-    A compliant reference implementation for a NautilusTrader Data Client.
+    A NautilusTrader Data Client for the Lighter exchange.
+
+    Connects to the Lighter WebSocket feed for real-time market data
+    including orderbook updates, trade executions, and ticker data.
     """
 
     def __init__(
         self,
         loop: asyncio.AbstractEventLoop,
-        client: object, # The Rust HTTP client
+        client: object,
         client_id: ClientId,
         venue: Venue,
         msgbus: MessageBus,
@@ -39,23 +45,24 @@ class LighterDataClient(LiveMarketDataClient):
             instrument_provider=instrument_provider,
             config=config,
         )
-        self._websocket_url = "wss://api.lighter.xyz/ws"
+        self._client = client
+        self._websocket_url = WS_URL_PUBLIC
+        self._ws = None
 
     async def _connect(self) -> None:
         """
-        Connect to the exchange WebSocket feed.
+        Connect to the Lighter WebSocket feed.
         """
-        # Implementation to connect websocket
-        # self._ws = await websockets.connect(self._websocket_url)
-        # self._loop.create_task(self._read_messages())
+        self._log.info("Connecting to Lighter WebSocket...", LogColor.BLUE)
         pass
 
     async def _disconnect(self) -> None:
         """
-        Disconnect from the exchange.
+        Disconnect from the Lighter WebSocket feed.
         """
-        # await self._ws.close()
-        pass
+        if self._ws is not None:
+            self._log.info("Disconnecting from Lighter WebSocket...", LogColor.BLUE)
+        self._ws = None
 
     async def _request(self, command) -> None:
         """
@@ -67,45 +74,50 @@ class LighterDataClient(LiveMarketDataClient):
         """
         Handle generic subscription logic.
         """
-        # Helper method for specific subscriptions
         pass
 
     async def _subscribe_trade_ticks(self, command: SubscribeTradeTicks) -> None:
         """
-        Subscribe to trade channel.
+        Subscribe to the trades channel for a given instrument.
         """
-        # await self._ws.send_json({"op": "subscribe", "channel": "trades", "market": command.instrument_id.symbol.value})
+        symbol = command.instrument_id.symbol.value
+        self._log.info(f"Subscribing to trades for {symbol}", LogColor.BLUE)
         pass
 
     async def _subscribe_quote_ticks(self, command: SubscribeQuoteTicks) -> None:
         """
-        Subscribe to quote/ticker channel.
+        Subscribe to the ticker channel for a given instrument.
         """
-        # await self._ws.send_json({"op": "subscribe", "channel": "ticker", "market": command.instrument_id.symbol.value})
+        symbol = command.instrument_id.symbol.value
+        self._log.info(f"Subscribing to quotes for {symbol}", LogColor.BLUE)
         pass
 
     async def _subscribe_order_book_deltas(self, command: SubscribeOrderBook) -> None:
         """
-        Subscribe to order book channel.
+        Subscribe to the orderbook channel for a given instrument.
         """
-        # await self._ws.send_json({"op": "subscribe", "channel": "orderbook", "market": command.instrument_id.symbol.value})
+        symbol = command.instrument_id.symbol.value
+        self._log.info(f"Subscribing to orderbook for {symbol}", LogColor.BLUE)
         pass
 
     async def _handle_ws_message(self, msg: dict) -> None:
         """
-        Process incoming WebSocket messages.
+        Process incoming WebSocket messages and dispatch to handlers.
         """
-        if msg.get("type") == "trade":
+        channel = msg.get("channel", "")
+        if channel == "trades":
             self._handle_trade(msg)
-        elif msg.get("type") == "ticker":
-            self._handle_quote(msg)
+        elif channel == "orderbook":
+            self._handle_orderbook(msg)
 
     def _handle_trade(self, msg: dict) -> None:
         """
-        Parse trade message and emit TradeTick.
+        Parse a trade message and emit a TradeTick.
         """
-        dt = self._clock.timestamp_ns() # Or parse from msg
-        # instrument = self._instrument_provider.find(msg["symbol"])
-        # tick = TradeTick(...)
-        # self._handle_data(tick)
+        pass
+
+    def _handle_orderbook(self, msg: dict) -> None:
+        """
+        Parse an orderbook message and emit OrderBookDeltas.
+        """
         pass

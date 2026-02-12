@@ -10,7 +10,7 @@ market_coverage:
   options_supported: false
 
 rest_api:
-  rest_base_url: https://pro.edgex.exchange/api/
+  rest_base_url: https://pro.edgex.exchange
   api_version: v1
   rate_limits:
     - rule: Per-account rate limits apply

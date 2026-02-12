@@ -8,7 +8,7 @@ market_coverage:
   futures_supported: false
   options_supported: false
 rest_api:
-  rest_base_url: https://gateway.prod.nado.xyz/v1
+  rest_base_url: https://gateway.prod.nado.xyz
   api_version: v1
   rate_limits:
     - rule: Remaining transactions per signer available via indexer LINKED_SIGNER_RATE_LIMIT query
@@ -24,6 +24,13 @@ authentication:
   encoding: hex
   passphrase_required: false
 rest_endpoints:
+  - name: Health Check
+    path: /health
+    method: GET
+    auth_required: false
+    request_fields: []
+    response_fields:
+      - status
   - name: Place Order
     path: /execute
     method: POST

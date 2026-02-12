@@ -2,24 +2,39 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LighterConfig {
-    pub api_key: String,
-    pub secret_key: String,
-    #[serde(default = "default_chain_id")]
-    pub chain_id: String,
-    #[serde(default = "default_base_url")]
-    pub base_url: String,
-    #[serde(default = "default_ws_url")]
-    pub ws_url: String,
+    pub api_key: Option<String>,
+    pub api_secret: Option<String>,
+    pub base_url: Option<String>,
+    pub ws_url: Option<String>,
+    pub is_testnet: bool,
 }
 
-fn default_chain_id() -> String {
-    "137".to_string() // Polygon Mainnet
+impl Default for LighterConfig {
+    fn default() -> Self {
+        Self {
+            api_key: None,
+            api_secret: None,
+            base_url: Some("https://mainnet.zklighter.elliot.ai".to_string()),
+            ws_url: Some("wss://mainnet.zklighter.elliot.ai/stream".to_string()),
+            is_testnet: false,
+        }
+    }
 }
 
-fn default_base_url() -> String {
-    "https://api.lighter.xyz".to_string()
-}
+impl LighterConfig {
+    pub fn get_base_url(&self) -> &str {
+        if self.is_testnet {
+            "https://testnet.zklighter.elliot.ai"
+        } else {
+            self.base_url
+                .as_deref()
+                .unwrap_or("https://mainnet.zklighter.elliot.ai")
+        }
+    }
 
-fn default_ws_url() -> String {
-    "wss://api.lighter.xyz/ws".to_string()
+    pub fn get_ws_url(&self) -> &str {
+        self.ws_url
+            .as_deref()
+            .unwrap_or("wss://mainnet.zklighter.elliot.ai/stream")
+    }
 }

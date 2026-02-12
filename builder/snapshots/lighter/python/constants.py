@@ -1,24 +1,36 @@
-# ------------------------------------------------------------------------------
-#  Copyright (c) 2024 Nautilus Technologies, Inc.
-#  ------------------------------------------------------------------------------
-
 from nautilus_trader.model.identifiers import Venue
 
-LIGHTER_VENUE = Venue("LIGHTER")
+VENUE = Venue("LIGHTER")
 
-# REST API
-LIGHTER_REST_BASE_URL = "https://api.lighter.xyz"
-LIGHTER_API_VERSION = "v1"
+# REST API URLs
+REST_URL_MAINNET = "https://mainnet.zklighter.elliot.ai"
+REST_URL_TESTNET = "https://testnet.zklighter.elliot.ai"
 
-# WebSocket API
-LIGHTER_WS_PUBLIC_URL = "wss://api.lighter.xyz/ws"
-LIGHTER_WS_PRIVATE_URL = "wss://api.lighter.xyz/ws"
+# WebSocket URLs
+WS_URL_PUBLIC = "wss://mainnet.zklighter.elliot.ai/stream"
+WS_URL_PRIVATE = "wss://mainnet.zklighter.elliot.ai/stream"
 
-# Headers
-LIGHTER_HEADER_CHAIN_ID = "x-lighter-chain-id"
-LIGHTER_HEADER_API_KEY = "x-api-key"
-LIGHTER_HEADER_TIMESTAMP = "x-timestamp"
-LIGHTER_HEADER_SIGNATURE = "x-signature"
+# Standardized Venue Constants
+DEFAULT_HTTP_REQUEST_TIMEOUT_SECS = 10
+MAX_RETRIES = 3
+RETRY_DELAY_SECS = 1.0
 
-# Defaults
-DEFAULT_CHAIN_ID = "137"  # Polygon Mainnet
+# WebSocket Limits
+WS_MAX_MESSAGE_SIZE = 10 * 1024 * 1024  # 10 MB
+WS_PING_INTERVAL_SECS = 30
+WS_HEARTBEAT_INTERVAL_SECS = 30
+
+# Rate Limiting
+MAX_REQUESTS_PER_SECOND = 10
+
+# Order Types
+ORDER_TYPE_LIMIT = "limit"
+ORDER_TYPE_MARKET = "market"
+
+# Order States
+ORDER_STATE_NEW = "NEW"
+ORDER_STATE_OPEN = "OPEN"
+ORDER_STATE_FILLED = "FILLED"
+ORDER_STATE_CANCELED = "CANCELED"
+ORDER_STATE_REJECTED = "REJECTED"
+ORDER_STATE_EXPIRED = "EXPIRED"

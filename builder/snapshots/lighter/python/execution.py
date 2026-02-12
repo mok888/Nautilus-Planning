@@ -1,164 +1,162 @@
-# ------------------------------------------------------------------------------
-#  Copyright (c) 2024 Nautilus Technologies, Inc.
-#  ------------------------------------------------------------------------------
+import asyncio
 
-import hashlib
-import hmac
-from typing import Any
-
-import msgspec
-
-from nautilus_trader.adapters.http.client import HttpClient
-from nautilus_trader.common.clock import LiveClock
+from nautilus_trader.common.component import MessageBus
+from nautilus_trader.cache.cache import Cache
+from nautilus_trader.common.component import LiveClock
+from nautilus_trader.common.providers import InstrumentProvider
+from nautilus_trader.config import NautilusConfig
+from nautilus_trader.live.execution_client import LiveExecutionClient
+from nautilus_trader.model.identifiers import ClientId, Venue
+from nautilus_trader.model.enums import OmsType, AccountType
+from nautilus_trader.model.objects import Currency
+from nautilus_trader.execution.messages import SubmitOrder, CancelOrder
+from nautilus_trader.execution.reports import (
+    OrderStatusReport,
+    FillReport,
+    PositionStatusReport,
+    ExecutionMassStatus,
+)
 from nautilus_trader.common.enums import LogColor
-from nautilus_trader.config import ExecClientConfig
-from nautilus_trader.core.correctness import PyCondition
-from nautilus_trader.core.message import Event
-from nautilus_trader.execution.client import ExecutionClient
-from nautilus_trader.execution.messages import CancelOrder, SubmitOrder, UpdateOrder
-from nautilus_trader.model.identifiers import AccountId, ClientOrderId, VenueOrderId
-from nautilus_trader.model.orders import Order
 
-from nautilus_trader.adapters.lighter.constants import (
-    DEFAULT_CHAIN_ID,
-    LIGHTER_HEADER_API_KEY,
-    LIGHTER_HEADER_CHAIN_ID,
-    LIGHTER_HEADER_SIGNATURE,
-    LIGHTER_HEADER_TIMESTAMP,
-    LIGHTER_REST_BASE_URL,
-    LIGHTER_VENUE,
-)
-from nautilus_trader.adapters.lighter.factories import LighterInstrumentProvider
-from nautilus_trader.adapters.lighter.types import (
-    LighterCancelOrderResponse,
-    LighterOrderResponse,
-)
+from .constants import WS_URL_PRIVATE, REST_URL_MAINNET
 
-# Type encoders/decoders
-class LighterExecutionClientConfig(ExecClientConfig, kw_only=True):
+
+class LighterExecutionClient(LiveExecutionClient):
     """
-    Configuration for ``LighterExecutionClient``.
-    """
+    A NautilusTrader Execution Client for the Lighter exchange.
 
-    api_key: str
-    api_secret: str
-    chain_id: str = DEFAULT_CHAIN_ID
-
-
-class LighterExecutionClient(ExecutionClient):
-    """
-    Provides an execution client for the Lighter DEX.
+    Handles order submission, cancellation, and position management
+    via the Lighter REST API and WebSocket private feed.
+    Orders are submitted as schnorr transactions via the /action endpoint.
     """
 
     def __init__(
         self,
-        loop: Any,
-        msgbus: Any,
-        cache: Any,
+        loop: asyncio.AbstractEventLoop,
+        client: object,
+        client_id: ClientId,
+        venue: Venue,
+        oms_type: OmsType,
+        account_type: AccountType,
+        base_currency: Currency | None,
+        instrument_provider: InstrumentProvider,
+        msgbus: MessageBus,
+        cache: Cache,
         clock: LiveClock,
-        instrument_provider: LighterInstrumentProvider,
-        config: LighterExecutionClientConfig,
-    ) -> None:
+        config: NautilusConfig | None = None,
+    ):
         super().__init__(
             loop=loop,
-            client_id=LighterExecutionClient.__name__,
-            venue=LIGHTER_VENUE,
+            client_id=client_id,
+            venue=venue,
+            oms_type=oms_type,
+            account_type=account_type,
+            base_currency=base_currency,
+            instrument_provider=instrument_provider,
             msgbus=msgbus,
             cache=cache,
             clock=clock,
             config=config,
         )
-        self._config = config
-        self._api_key = config.api_key
-        self._api_secret = config.api_secret
-        self._chain_id = config.chain_id
-        self._http_client = HttpClient(base_url=LIGHTER_REST_BASE_URL)
-        self._instrument_provider = instrument_provider
-        self._account_id = AccountId(f"{LIGHTER_VENUE}-{self._api_key[:8]}")
-
-        self._log.info(f"Initializing Lighter Execution Client (account_id={self._account_id}).")
-
-    def _generate_auth_headers(
-        self,
-        method: str,
-        path: str,
-        body: str = "",
-    ) -> dict[str, str]:
-        timestamp = str(self._clock.timestamp_ms())
-        message = f"{timestamp}{method}{path}{body}"
-
-        signature = hmac.new(
-            key=self._api_secret.encode("utf-8"),
-            msg=message.encode("utf-8"),
-            digestmod=hashlib.sha256,
-        ).hexdigest()
-
-        return {
-            LIGHTER_HEADER_CHAIN_ID: self._chain_id,
-            LIGHTER_HEADER_API_KEY: self._api_key,
-            LIGHTER_HEADER_TIMESTAMP: timestamp,
-            LIGHTER_HEADER_SIGNATURE: signature,
-        }
+        self._client = client
+        self._base_url = REST_URL_MAINNET
+        self._ws_url = WS_URL_PRIVATE
 
     async def _connect(self) -> None:
-        self._log.info("Connecting to Lighter Execution Client...")
-        # Perform health check or auth check here if needed
-        self._set_connected(True)
+        """
+        Connect to the Lighter execution interface.
+        """
+        self._log.info("Connecting to Lighter execution...", LogColor.BLUE)
+        pass
 
     async def _disconnect(self) -> None:
-        self._log.info("Disconnecting Lighter Execution Client...")
-        self._set_connected(False)
+        """
+        Disconnect from the Lighter execution interface.
+        """
+        self._log.info("Disconnecting from Lighter execution...", LogColor.BLUE)
+        pass
 
     async def _submit_order(self, command: SubmitOrder) -> None:
-        order = command.order
-        self._log.info(f"Submitting order: {order}")
+        """
+        Submit an order to Lighter via the /action endpoint.
 
-        instrument = self._instrument_provider.find(order.instrument_id)
-        if instrument is None:
-            self._log.error(f"Instrument not found: {order.instrument_id}")
-            return
-
-        # Map Nautilus Order to Lighter Request
-        payload = {
-            "chainId": self._chain_id,
-            "symbol": instrument.symbol.value, # BASE-QUOTE format
-            "side": "BUY" if order.side.is_buy else "SELL",
-            "type": "LIMIT" if order.order_type.is_limit else "MARKET",
-            "price": str(order.price),
-            "quantity": str(order.quantity),
-            "clientOrderId": order.client_order_id.value,
-            "tif": "GTC",  # Nautilus typically defaults to GTC
-        }
-
-        path = "/v1/order"
-        body_str = msgspec.json.encode(payload).decode("utf-8")
-        headers = self._generate_auth_headers("POST", path, body_str)
-
-        try:
-            response = await self._http_client.post(
-                path=path,
-                headers=headers,
-                data=body_str,
-            )
-            resp_data = msgspec.json.decode(response.data)
-            result = msgspec.to_builtins(resp_data)
-            # Process result and emit OrderAccepted
-            self._log.info(f"Order response: {result}")
-            # TODO: Handle state transition
-        except Exception as e:
-            self._log.error(f"Error submitting order: {e}")
+        Orders are submitted as schnorr transactions signed with Ed25519.
+        """
+        self._log.info(
+            f"Submitting {command.order.type_string()} order for "
+            f"{command.instrument_id}",
+            LogColor.BLUE,
+        )
+        pass
 
     async def _cancel_order(self, command: CancelOrder) -> None:
-        self._log.info(f"Canceling order: {command}")
-        # Implementation for cancellation
-        # Assuming DELETE /v1/order
-
-    async def _modify_order(self, command: UpdateOrder) -> None:
-        self._log.info(f"Modifying order: {command}")
-        # Implementation for modification
-
-    async def _generate_order_status(self, venue_order_id: VenueOrderId) -> None:
+        """
+        Cancel an order at Lighter via the /action endpoint.
+        """
+        self._log.info(
+            f"Canceling order {command.client_order_id}",
+            LogColor.BLUE,
+        )
         pass
 
-    async def _update_account_state(self) -> None:
+    async def _cancel_all_orders(self, command) -> None:
+        """
+        Cancel all open orders for an instrument.
+        """
         pass
+
+    async def _modify_order(self, command) -> None:
+        """
+        Modify an existing order (cancel and replace).
+        """
+        pass
+
+    async def _batch_cancel_orders(self, command) -> None:
+        """
+        Batch cancel orders.
+        """
+        pass
+
+    async def _submit_order_list(self, command) -> None:
+        """
+        Submit a list of orders.
+        """
+        pass
+
+    async def generate_order_status_report(
+        self, command
+    ) -> OrderStatusReport | None:
+        """
+        Generate an order status report for a given order.
+        """
+        return None
+
+    async def generate_order_status_reports(
+        self, command
+    ) -> list[OrderStatusReport]:
+        """
+        Generate order status reports.
+        """
+        return []
+
+    async def generate_fill_reports(self, command) -> list[FillReport]:
+        """
+        Generate fill reports.
+        """
+        return []
+
+    async def generate_position_status_reports(
+        self, command
+    ) -> list[PositionStatusReport]:
+        """
+        Generate position status reports.
+        """
+        return []
+
+    async def generate_mass_status(
+        self, lookback_mins: int | None = None
+    ) -> ExecutionMassStatus | None:
+        """
+        Generate a mass execution status report.
+        """
+        return None

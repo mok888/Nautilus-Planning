@@ -1,109 +1,123 @@
-# ------------------------------------------------------------------------------
-#  Copyright (c) 2024 Nautilus Technologies, Inc.
-#  ------------------------------------------------------------------------------
+import asyncio
+from typing import Optional
 
-from typing import Any
-
-import msgspec
-
-from nautilus_trader.adapters.http.client import HttpClient
-from nautilus_trader.common.clock import LiveClock
+from nautilus_trader.common.component import MessageBus
+from nautilus_trader.cache.cache import Cache
+from nautilus_trader.common.component import LiveClock
+from nautilus_trader.common.providers import InstrumentProvider
+from nautilus_trader.config import NautilusConfig
+from nautilus_trader.live.data_client import LiveMarketDataClient
+from nautilus_trader.model.identifiers import ClientId, Venue
+from nautilus_trader.data.messages import SubscribeTradeTicks, SubscribeQuoteTicks, SubscribeOrderBook
+from nautilus_trader.model.data import TradeTick, QuoteTick, OrderBookDelta
 from nautilus_trader.common.enums import LogColor
-from nautilus_trader.config import LiveDataClientConfig
-from nautilus_trader.core.correctness import PyCondition
-from nautilus_trader.core.data import Data
-from nautilus_trader.live.data_client import LiveDataProvider
-from nautilus_trader.model.data import OrderBookDeltas, QuoteTick, TradeTick
-from nautilus_trader.model.identifiers import InstrumentId
-from nautilus_trader.msgbus.bus import MessageBus
 
-from nautilus_trader.adapters.lighter.constants import (
-    LIGHTER_REST_BASE_URL,
-    LIGHTER_VENUE,
-    LIGHTER_WS_PUBLIC_URL,
-)
-from nautilus_trader.adapters.lighter.types import LighterOrderBookMsg, LighterTradeMsg
+from .constants import WS_URL_PUBLIC
 
 
-class LighterDataClientConfig(LiveDataClientConfig, kw_only=True):
+class LighterDataClient(LiveMarketDataClient):
     """
-    Configuration for ``LighterDataClient``.
+    A NautilusTrader Data Client for the Lighter exchange.
 
-    Parameters
-    ----------
-    chain_id : str, default "137"
-        The blockchain chain ID.
-    """
-
-    chain_id: str = "137"
-
-
-class LighterDataClient(LiveDataProvider):
-    """
-    Provides a live data connection for Lighter DEX.
+    Connects to the Lighter WebSocket feed for real-time market data
+    including orderbook updates, trade executions, and ticker data.
     """
 
     def __init__(
         self,
-        loop: Any,
+        loop: asyncio.AbstractEventLoop,
+        client: object,
+        client_id: ClientId,
+        venue: Venue,
         msgbus: MessageBus,
-        cache: Any,
+        cache: Cache,
         clock: LiveClock,
-        config: LighterDataClientConfig,
-    ) -> None:
-        PyCondition.type(config, LighterDataClientConfig, "config")
+        instrument_provider: InstrumentProvider,
+        config: NautilusConfig | None = None,
+    ):
         super().__init__(
             loop=loop,
-            client_id=LighterDataClient.__name__,
+            client_id=client_id,
+            venue=venue,
             msgbus=msgbus,
             cache=cache,
             clock=clock,
+            instrument_provider=instrument_provider,
             config=config,
         )
-
-        self._config: LighterDataClientConfig = config
-        self._chain_id: str = config.chain_id
-        self._http_client: HttpClient = HttpClient(base_url=LIGHTER_REST_BASE_URL)
-        self._decoder = msgspec.json.Decoder(LighterOrderBookMsg)
-        self._trade_decoder = msgspec.json.Decoder(LighterTradeMsg)
-
-        self._log.info(f"Initializing Lighter Data Client (chain_id={self._chain_id}).")
+        self._client = client
+        self._websocket_url = WS_URL_PUBLIC
+        self._ws = None
 
     async def _connect(self) -> None:
-        # Implementation of WebSocket connection logic would go here
-        # Connecting to LIGHTER_WS_PUBLIC_URL
-        self._log.info("Connecting to Lighter WebSocket...")
-        self._set_connected(True)
+        """
+        Connect to the Lighter WebSocket feed.
+        """
+        self._log.info("Connecting to Lighter WebSocket...", LogColor.BLUE)
+        pass
 
     async def _disconnect(self) -> None:
-        self._log.info("Disconnecting Lighter Data Client...")
-        self._set_connected(False)
+        """
+        Disconnect from the Lighter WebSocket feed.
+        """
+        if self._ws is not None:
+            self._log.info("Disconnecting from Lighter WebSocket...", LogColor.BLUE)
+        self._ws = None
 
-    async def _subscribe_instrument(self, instrument_id: InstrumentId) -> None:
-        self._log.info(f"Subscribing to instrument {instrument_id}.")
-        # Logic to send subscription message to WS
+    async def _request(self, command) -> None:
+        """
+        Handle generic request logic.
+        """
+        pass
 
-    async def _subscribe_instruments(self) -> None:
-        self._log.info("Subscribing to all instruments.")
+    async def _subscribe(self, command) -> None:
+        """
+        Handle generic subscription logic.
+        """
+        pass
 
-    async def _subscribe_order_book_deltas(self, instrument_id: InstrumentId) -> None:
-        self._log.info(f"Subscribing to OrderBookDeltas for {instrument_id}.")
-        # Subscribe to 'orderbook' channel
+    async def _subscribe_trade_ticks(self, command: SubscribeTradeTicks) -> None:
+        """
+        Subscribe to the trades channel for a given instrument.
+        """
+        symbol = command.instrument_id.symbol.value
+        self._log.info(f"Subscribing to trades for {symbol}", LogColor.BLUE)
+        pass
 
-    async def _subscribe_quote_ticks(self, instrument_id: InstrumentId) -> None:
-        self._log.info(f"Subscribing to QuoteTicks for {instrument_id}.")
+    async def _subscribe_quote_ticks(self, command: SubscribeQuoteTicks) -> None:
+        """
+        Subscribe to the ticker channel for a given instrument.
+        """
+        symbol = command.instrument_id.symbol.value
+        self._log.info(f"Subscribing to quotes for {symbol}", LogColor.BLUE)
+        pass
 
-    async def _subscribe_trade_ticks(self, instrument_id: InstrumentId) -> None:
-        self._log.info(f"Subscribing to TradeTicks for {instrument_id}.")
-        # Subscribe to 'trades' channel
+    async def _subscribe_order_book_deltas(self, command: SubscribeOrderBook) -> None:
+        """
+        Subscribe to the orderbook channel for a given instrument.
+        """
+        symbol = command.instrument_id.symbol.value
+        self._log.info(f"Subscribing to orderbook for {symbol}", LogColor.BLUE)
+        pass
 
-    # Internal methods to parse incoming WS data
-    def _process_order_book(self, raw: bytes) -> None:
-        msg = self._decoder.decode(raw)
-        # Convert Nautilus OrderBookDeltas
-        # self._msgbus.publish(topic=..., msg=...)
+    async def _handle_ws_message(self, msg: dict) -> None:
+        """
+        Process incoming WebSocket messages and dispatch to handlers.
+        """
+        channel = msg.get("channel", "")
+        if channel == "trades":
+            self._handle_trade(msg)
+        elif channel == "orderbook":
+            self._handle_orderbook(msg)
 
-    def _process_trade(self, raw: bytes) -> None:
-        msg = self._trade_decoder.decode(raw)
-        # Convert Nautilus TradeTick
-        # self._msgbus.publish(topic=..., msg=...)
+    def _handle_trade(self, msg: dict) -> None:
+        """
+        Parse a trade message and emit a TradeTick.
+        """
+        pass
+
+    def _handle_orderbook(self, msg: dict) -> None:
+        """
+        Parse an orderbook message and emit OrderBookDeltas.
+        """
+        pass

@@ -14,23 +14,23 @@ class LighterDataClientConfig(LiveDataClientConfig, frozen=True):
     Parameters
     ----------
     api_key : str, optional
-        The API public key.
+        The API public key for Bearer token auth.
         If ``None`` then will source the `LIGHTER_API_KEY` environment variable.
     api_secret : str, optional
-        The API secret key.
+        The API secret key (schnorr private key).
         If ``None`` then will source the `LIGHTER_API_SECRET` environment variable.
     base_url_http : str, optional
         The base URL for HTTP API.
-        If ``None`` then will use the default URL based on environment.
+        If ``None`` then will use ``https://mainnet.zklighter.elliot.ai``.
     base_url_ws : str, optional
         The base URL for WebSocket API.
-        If ``None`` then will use the default URL based on environment.
+        If ``None`` then will use ``wss://mainnet.zklighter.elliot.ai/stream``.
     http_proxy_url : str, optional
         Optional HTTP proxy URL.
     ws_proxy_url : str, optional
         Optional WebSocket proxy URL.
     is_testnet : bool, default False
-        If the client is connecting to the testnet environment.
+        If the client is connecting to the testnet (devnet) environment.
     http_timeout_secs : PositiveInt, default 60
         The timeout for HTTP requests in seconds.
     max_retries : PositiveInt, optional
@@ -64,18 +64,22 @@ class LighterDataClientConfig(LiveDataClientConfig, frozen=True):
 class LighterExecClientConfig(LiveExecClientConfig, frozen=True):
     """
     Configuration for ``LighterExecutionClient`` instances.
-    
+
     Parameters
     ----------
-    api_key : str
-        The API public key.
-    api_secret : str
-        The API secret key.
+    api_key : str, optional
+        The API public key for Bearer token auth.
+    api_secret : str, optional
+        The API secret key (schnorr private key).
     base_url_http : str, optional
         The base URL for HTTP API.
-    # ... (add other fields matching DataClientConfig as needed)
+    base_url_ws : str, optional
+        The base URL for WebSocket API.
+    is_testnet : bool, default False
+        If the client is connecting to the testnet (devnet) environment.
+
     """
-    
+
     api_key: str | None = None
     api_secret: str | None = None
     base_url_http: str | None = None

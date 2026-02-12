@@ -6,11 +6,18 @@ from nautilus_trader.live.factories import LiveDataClientFactory, LiveExecClient
 from nautilus_trader.live.data_client import LiveDataClient
 from nautilus_trader.live.execution_client import LiveExecutionClient
 
-from .config import LighterDataClientConfig, LighterExecutionClientConfig
-from .data_client import LighterDataClient
-from .execution_client import LighterExecutionClient
+from .config import LighterDataClientConfig, LighterExecClientConfig
+from .data import LighterDataClient
+from .execution import LighterExecutionClient
+from .constants import VENUE
+from .providers import LighterInstrumentProvider
+
 
 class LighterLiveDataClientFactory(LiveDataClientFactory):
+    """
+    Factory for creating Lighter live data client instances.
+    """
+
     @staticmethod
     def create(
         loop: asyncio.AbstractEventLoop,
@@ -20,32 +27,56 @@ class LighterLiveDataClientFactory(LiveDataClientFactory):
         cache: Cache,
         clock: LiveClock,
     ) -> LiveDataClient:
+        """
+        Create a new LighterDataClient instance.
+        """
+        instrument_provider = LighterInstrumentProvider()
+
         return LighterDataClient(
             loop=loop,
+            client=None,
             client_id=name,
+            venue=VENUE,
             msgbus=msgbus,
             cache=cache,
             clock=clock,
+            instrument_provider=instrument_provider,
             config=config,
-            # Pass other dependencies...
         )
 
+
 class LighterLiveExecClientFactory(LiveExecClientFactory):
+    """
+    Factory for creating Lighter live execution client instances.
+    """
+
     @staticmethod
     def create(
         loop: asyncio.AbstractEventLoop,
         name: str,
-        config: LighterExecutionClientConfig,
+        config: LighterExecClientConfig,
         msgbus: MessageBus,
         cache: Cache,
         clock: LiveClock,
     ) -> LiveExecutionClient:
+        """
+        Create a new LighterExecutionClient instance.
+        """
+        from nautilus_trader.model.enums import OmsType, AccountType
+
+        instrument_provider = LighterInstrumentProvider()
+
         return LighterExecutionClient(
             loop=loop,
+            client=None,
             client_id=name,
+            venue=VENUE,
+            oms_type=OmsType.NETTING,
+            account_type=AccountType.MARGIN,
+            base_currency=None,
+            instrument_provider=instrument_provider,
             msgbus=msgbus,
             cache=cache,
             clock=clock,
             config=config,
-            # Pass other dependencies...
         )

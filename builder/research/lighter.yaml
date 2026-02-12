@@ -27,7 +27,7 @@ authentication:
   notes: "Requires lighter-sdk (ctypes/shared lib) to generate Schnorr signature on BabyJubJub curve. Token is passed as 'auth' query param or header."
 rest_endpoints:
   - name: Get Tickers
-    path: /v1/tickers
+    path: /v1/tickers?chainId=1
     method: GET
     auth_required: false
     request_fields:

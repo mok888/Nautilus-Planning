@@ -1,125 +1,113 @@
-use crate::config::LighterConfig;
-use crate::error::{LighterError, Result};
-use crate::http::signing::generate_signature;
-use crate::parsing models::{OrderBook, OrderResponse, Ticker};
-
-use hyper::body::{Bytes, Incoming};
-use hyper::header::{AUTHORIZATION, CONTENT_TYPE};
-use hyper::Request;
-use hyper::{Method, StatusCode, Uri};
-use hyper_util::client::legacy::connect::HttpConnector;
-use hyper_util::client::legacy::Client;
-use hyper_util::rt::TokioExecutor;
-use http_body_util::{BodyExt, Full};
-use hyper_rustls::HttpsConnector;
-use governor::{
-    clock::DefaultClock,
-    state::{InMemoryState, NotKeyed},
-    Quota, RateLimiter,
-};
-use serde::de::DeserializeOwned;
-use std::num::NonZeroU32;
 use std::sync::Arc;
-use std::time::Duration;
+use nautilus_network::http::HttpClient;
+use nautilus_common::live::get_runtime;
 
-pub struct HttpClient {
-    config: LighterConfig,
-    client: Client<HttpsConnector<HttpConnector>, Full<Bytes>>,
-    rate_limiter: Arc<RateLimiter<NotKeyed, InMemoryState, DefaultClock>>,
+use crate::common::credential::LighterCredential;
+use crate::common::models::{
+    LighterInfoResponse,
+    LighterOrderbookResponse,
+    LighterTradesResponse,
+    LighterActionResponse,
+};
+
+/// Raw HTTP client matching Lighter venue API endpoints.
+pub struct LighterRawHttpClient {
+    base_url: String,
+    client: HttpClient,
+    credential: Option<LighterCredential>,
 }
 
-impl HttpClient {
-    pub fn new(config: LighterConfig) -> Self {
-        let https = hyper_rustls::HttpsConnectorBuilder::new()
-            .with_native_roots()
-            .https_or_http()
-            .enable_http1()
-            .build();
+/// Domain HTTP client exposing Nautilus types.
+pub struct LighterHttpClient {
+    inner: Arc<LighterRawHttpClient>,
+}
 
-        let client: Client<_, Full<Bytes>> = Client::builder(TokioExecutor::new()).build(https);
-
-        // Rate limit: 120 requests per minute = 2 per second
-        let quota = Quota::per_minute(NonZeroU32::new(120).unwrap());
-        let rate_limiter = RateLimiter::direct(quota);
-
+impl LighterHttpClient {
+    pub fn new(
+        base_url: String,
+        client: HttpClient,
+        credential: Option<LighterCredential>,
+    ) -> Self {
         Self {
-            config,
-            client,
-            rate_limiter: Arc::new(rate_limiter),
+            inner: Arc::new(LighterRawHttpClient {
+                base_url,
+                client,
+                credential,
+            }),
         }
     }
 
-    async fn request<B, R, O>(&self, method: Method, path: &str, body: B) -> Result<O>
-    where
-        B: serde::Serialize,
-        O: DeserializeOwned,
-    {
-        // Rate limiting check (blocking for simplicity in this layer, non-blocking available via governor)
-        self.rate_limiter.until_ready().await;
-
-        let body_json = if method == Method::POST || method == Method::PUT {
-            serde_json::to_string(&body)?
-        } else {
-            String::new()
-        };
-
-        let (timestamp, signature) = generate_signature(&self.config, method.as_str(), path, &body_json)?;
-
-        let url_str = format!("{}{}", self.config.base_url, path);
-        let uri: Uri = url_str.parse().map_err(|e| LighterError::Http(e.to_string()))?;
-
-        let mut req_builder = Request::builder()
-            .method(method)
-            .uri(uri)
-            .header("x-lighter-chain-id", &self.config.chain_id)
-            .header("x-api-key", &self.config.api_key)
-            .header("x-timestamp", timestamp)
-            .header("x-signature", signature)
-            .header(CONTENT_TYPE, "application/json");
-
-        let req = if method == Method::POST || method == Method::PUT {
-            req_builder
-                .body(Full::new(Bytes::from(body_json)))
-                .map_err(|e| LighterError::Http(e.to_string()))?
-        } else {
-            req_builder
-                .body(Full::new(Bytes::new()))
-                .map_err(|e| LighterError::Http(e.to_string()))?
-        };
-
-        let res = self.client.request(req).await?;
-
-        if res.status() != StatusCode::OK {
-            let status = res.status();
-            let body_bytes = res.collect().await?.to_bytes();
-            let err_str = String::from_utf8_lossy(&body_bytes).to_string();
-            return Err(LighterError::Http(format!(
-                "Status: {}, Body: {}",
-                status, err_str
-            )));
-        }
-
-        let body_bytes = res.collect().await?.to_bytes();
-        let parsed: O = serde_json::from_slice(&body_bytes)?;
-        Ok(parsed)
+    /// Fetch exchange info including markets and tokens.
+    /// GET /info
+    pub fn get_info(&self) -> anyhow::Result<LighterInfoResponse> {
+        let inner = self.inner.clone();
+        get_runtime().block_on(async move {
+            let url = format!("{}/info", inner.base_url);
+            let response = inner.client.get(url, None, None, None, None).await
+                .map_err(|e| anyhow::anyhow!("{e}"))?;
+            let info: LighterInfoResponse = serde_json::from_slice(&response.body)?;
+            Ok(info)
+        })
     }
 
-    // --- Endpoints ---
-
-    pub async fn get_tickers(&self) -> Result<Vec<Ticker>> {
-        // Note: schema says request_fields: chainId. usually query param.
-        // We assume chainId is handled in header for this specific API based on notes, 
-        // but if query param needed, we append to path.
-        self.request::<(), _, Vec<Ticker>>(Method::GET, "/v1/tickers", ()).await
+    /// Fetch orderbook for a given market.
+    /// GET /market/{market_id}/orderbook
+    pub fn get_orderbook(&self, market_id: u32) -> anyhow::Result<LighterOrderbookResponse> {
+        let inner = self.inner.clone();
+        get_runtime().block_on(async move {
+            let url = format!("{}/market/{}/orderbook", inner.base_url, market_id);
+            let response = inner.client.get(url, None, None, None, None).await
+                .map_err(|e| anyhow::anyhow!("{e}"))?;
+            let orderbook: LighterOrderbookResponse = serde_json::from_slice(&response.body)?;
+            Ok(orderbook)
+        })
     }
 
-    pub async fn get_orderbook(&self, symbol: &str) -> Result<OrderBook> {
-        // Placeholder for query param construction if needed by path logic
-        let path = format!("/v1/orderbook?chainId={}&symbol={}", self.config.chain_id, symbol);
-        self.request::<(), _, OrderBook>(Method::GET, &path, ()).await
+    /// Fetch recent trades.
+    /// GET /trades
+    pub fn get_trades(
+        &self,
+        market_id: u32,
+        limit: Option<u32>,
+    ) -> anyhow::Result<LighterTradesResponse> {
+        let inner = self.inner.clone();
+        get_runtime().block_on(async move {
+            let mut url = format!("{}/trades?market_id={}", inner.base_url, market_id);
+            if let Some(limit) = limit {
+                url.push_str(&format!("&limit={}", limit));
+            }
+            let response = inner.client.get(url, None, None, None, None).await
+                .map_err(|e| anyhow::anyhow!("{e}"))?;
+            let trades: LighterTradesResponse = serde_json::from_slice(&response.body)?;
+            Ok(trades)
+        })
     }
 
-    pub async fn create_order(&self, order_req: crate::parsing::models::CreateOrderRequest) -> Result<OrderResponse> {
-        self.request(Method::POST, "/v1/order", order_req).await
+    /// Get server timestamp.
+    /// GET /timestamp
+    pub fn get_timestamp(&self) -> anyhow::Result<u64> {
+        let inner = self.inner.clone();
+        get_runtime().block_on(async move {
+            let url = format!("{}/timestamp", inner.base_url);
+            let response = inner.client.get(url, None, None, None, None).await
+                .map_err(|e| anyhow::anyhow!("{e}"))?;
+            let body_str = std::str::from_utf8(&response.body)?;
+            let ts: u64 = body_str.trim().parse()?;
+            Ok(ts)
+        })
+    }
+
+    /// Submit a transaction action (place/cancel order).
+    /// POST /action
+    pub fn submit_action(&self, payload: &str) -> anyhow::Result<LighterActionResponse> {
+        let inner = self.inner.clone();
+        let body_bytes = payload.as_bytes().to_vec();
+        get_runtime().block_on(async move {
+            let url = format!("{}/action", inner.base_url);
+            let response = inner.client.post(url, None, None, Some(body_bytes), None, None).await
+                .map_err(|e| anyhow::anyhow!("{e}"))?;
+            let action: LighterActionResponse = serde_json::from_slice(&response.body)?;
+            Ok(action)
+        })
     }
 }
