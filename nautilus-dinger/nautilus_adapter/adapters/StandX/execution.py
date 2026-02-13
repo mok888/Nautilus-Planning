@@ -97,6 +97,13 @@ class StandXExecutionClient(LiveExecutionClient):
         self._reconciliation_page_size = max(1, min(int(configured_page_size), 200))
         self._ws_order_cache: dict[str, dict[str, Any]] = {}
         self._ws_fill_cache: list[dict[str, Any]] = []
+        self._ws_fill_seen: set[str] = set()
+        self._private_sync_task: asyncio.Task[Any] | None = None
+        poll_interval = getattr(config, "private_sync_poll_interval_secs", 1.0) if config else 1.0
+        try:
+            self._private_sync_poll_interval_secs = max(0.2, float(poll_interval))
+        except Exception:
+            self._private_sync_poll_interval_secs = 1.0
         self._set_account_id(AccountId(f"{venue.value}-001"))
 
     def _require_client(self) -> Any:
@@ -300,22 +307,34 @@ class StandXExecutionClient(LiveExecutionClient):
         if hasattr(client, "set_account_id"):
             await self._call_client("set_account_id", str(self.account_id))
 
-        if hasattr(client, "set_private_message_callback"):
-            def _on_private_ws_message(payload: Any) -> None:
-                try:
-                    asyncio.run_coroutine_threadsafe(
-                        self._ingest_private_ws_payload(payload),
-                        self._loop,
-                    )
-                except Exception:
-                    pass
+        private_ws_ready = False
+        if (
+            hasattr(client, "set_private_message_callback")
+            and hasattr(client, "subscribe_private_orders")
+            and hasattr(client, "subscribe_private_fills")
+        ):
+            try:
+                def _on_private_ws_message(payload: Any) -> None:
+                    try:
+                        asyncio.run_coroutine_threadsafe(
+                            self._ingest_private_ws_payload(payload),
+                            self._loop,
+                        )
+                    except Exception:
+                        pass
 
-            await self._call_client("set_private_message_callback", _on_private_ws_message)
+                await self._call_client("set_private_message_callback", _on_private_ws_message)
+                await self._call_client("subscribe_private_orders")
+                await self._call_client("subscribe_private_fills")
+                private_ws_ready = True
+            except Exception as e:
+                self._log.warning(
+                    f"StandX private WS setup failed, falling back to HTTP sync: {e}",
+                    LogColor.YELLOW,
+                )
 
-        if hasattr(client, "subscribe_private_orders"):
-            await self._call_client("subscribe_private_orders")
-        if hasattr(client, "subscribe_private_fills"):
-            await self._call_client("subscribe_private_fills")
+        if not private_ws_ready:
+            self._start_private_sync_fallback()
 
         await self._instrument_provider.load_all_async()
         for instrument in self._instrument_provider.get_all().values():
@@ -378,6 +397,93 @@ class StandXExecutionClient(LiveExecutionClient):
 
     async def _disconnect(self) -> None:
         self._log.info("Disconnecting from StandX execution...", LogColor.BLUE)
+        task = self._private_sync_task
+        self._private_sync_task = None
+        if task is not None:
+            task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
+            except Exception:
+                pass
+
+    def _start_private_sync_fallback(self) -> None:
+        if self._private_sync_task is not None and not self._private_sync_task.done():
+            return
+        self._log.info(
+            "Using StandX HTTP private stream fallback (orders/fills polling)",
+            LogColor.YELLOW,
+        )
+        self._private_sync_task = self._loop.create_task(self._private_sync_loop())
+
+    async def _private_sync_loop(self) -> None:
+        try:
+            while True:
+                try:
+                    open_orders = await self._fetch_open_orders(None)
+                    for row in open_orders:
+                        if not isinstance(row, dict):
+                            continue
+                        order_key = (
+                            row.get("order_index")
+                            or row.get("order_id")
+                            or row.get("id")
+                            or row.get("client_order_index")
+                            or row.get("client_order_id")
+                            or row.get("cl_ord_id")
+                        )
+                        if order_key is not None:
+                            self._ws_order_cache[str(order_key)] = row
+
+                    fills_payload = await self._call_client(
+                        "get_fills",
+                        None,
+                        None,
+                        None,
+                        self._reconciliation_page_size,
+                    )
+                    fills_rows = []
+                    if isinstance(fills_payload, dict):
+                        fills_rows = (
+                            fills_payload.get("fills")
+                            or fills_payload.get("result")
+                            or fills_payload.get("results")
+                            or []
+                        )
+                    if isinstance(fills_rows, list):
+                        for row in fills_rows:
+                            if not isinstance(row, dict):
+                                continue
+                            fill_key = (
+                                row.get("id")
+                                or row.get("trade_id")
+                                or row.get("fill_id")
+                                or row.get("order_fill_id")
+                            )
+                            if fill_key is None:
+                                continue
+                            fill_key_text = str(fill_key)
+                            if fill_key_text in self._ws_fill_seen:
+                                continue
+                            self._ws_fill_seen.add(fill_key_text)
+                            self._ws_fill_cache.append(row)
+
+                    if len(self._ws_fill_cache) > 5000:
+                        self._ws_fill_cache = self._ws_fill_cache[-2500:]
+                    if len(self._ws_fill_seen) > 10000:
+                        keep_ids = {
+                            str(item.get("id") or item.get("trade_id") or item.get("fill_id"))
+                            for item in self._ws_fill_cache
+                            if isinstance(item, dict)
+                        }
+                        self._ws_fill_seen = {k for k in self._ws_fill_seen if k in keep_ids}
+                except Exception:
+                    pass
+
+                await asyncio.sleep(self._private_sync_poll_interval_secs)
+        except asyncio.CancelledError:
+            return
 
     async def _ingest_private_ws_payload(self, payload: Any) -> None:
         data = self._coerce_json(payload)
