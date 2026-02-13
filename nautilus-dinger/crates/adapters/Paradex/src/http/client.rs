@@ -143,6 +143,43 @@ impl ParadexHttpClient {
         })
     }
 
+    pub fn get_account_state(&self) -> anyhow::Result<serde_json::Value> {
+        let inner = self.inner.clone();
+        let jwt = self.authenticate()?;
+
+        get_runtime().block_on(async move {
+            let mut headers = HashMap::new();
+            headers.insert("Authorization".to_string(), format!("Bearer {}", jwt));
+
+            let account_url = format!("{}/account", inner.base_url);
+            let response = inner
+                .client
+                .get(account_url, None, Some(headers.clone()), None, None)
+                .await
+                .map_err(|e| anyhow::anyhow!("{e}"))?;
+
+            if response.status.is_success() {
+                let body: serde_json::Value = serde_json::from_slice(&response.body)?;
+                return Ok(body);
+            }
+
+            let me_url = format!("{}/accounts/me", inner.base_url);
+            let fallback = inner
+                .client
+                .get(me_url, None, Some(headers), None, None)
+                .await
+                .map_err(|e| anyhow::anyhow!("{e}"))?;
+
+            if !fallback.status.is_success() {
+                let err_msg = std::str::from_utf8(&fallback.body).unwrap_or("Unknown error");
+                return Err(anyhow::anyhow!("API Error {:?}: {}", fallback.status, err_msg));
+            }
+
+            let body: serde_json::Value = serde_json::from_slice(&fallback.body)?;
+            Ok(body)
+        })
+    }
+
     /// Fetch orderbook for a given market.
     /// GET /orderbook/{market_symbol}
     pub fn get_orderbook(&self, market_symbol: &str) -> anyhow::Result<ParadexOrderbookResponse> {

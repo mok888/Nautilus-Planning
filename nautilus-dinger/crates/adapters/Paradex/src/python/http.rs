@@ -54,6 +54,13 @@ impl PyParadexHttpClient {
             .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("{e}")))
     }
 
+    pub fn get_account_state(&self) -> PyResult<String> {
+        self.client
+            .get_account_state()
+            .map(|state| serde_json::to_string(&state).unwrap_or_default())
+            .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("{e}")))
+    }
+
     pub fn submit_order(
         &self,
         market: String,

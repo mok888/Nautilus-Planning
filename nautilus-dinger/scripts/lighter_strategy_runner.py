@@ -1,19 +1,18 @@
 import argparse
-import json
+import asyncio
 import os
-import sys
 import threading
 from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
-from typing import Any, Protocol, cast
+from typing import Protocol
 
 from strategy_common import compute_quantity_from_risk
 from strategy_common import resolve_canonical_symbol
 
 
-class _ParadexOrderbookClient(Protocol):
-    def get_orderbook(self, symbol: str) -> str | dict: ...
+class _LighterOrderbookClient(Protocol):
+    async def get_orderbook(self, market: str, limit: int = 20) -> dict: ...
 
 
 def _load_env_file(path: Path) -> None:
@@ -30,55 +29,11 @@ def _load_env_file(path: Path) -> None:
             os.environ[key] = value
 
 
-def _ensure_paradex_extension(repo_root: Path) -> None:
-    debug_dir = repo_root / "target" / "debug"
-    extension_path = debug_dir / "paradex.so"
-    lib_path = debug_dir / "libparadex.so"
-
-    if not extension_path.exists() and lib_path.exists():
-        try:
-            os.symlink(lib_path.name, extension_path)
-        except FileExistsError:
-            pass
-
-    if str(debug_dir) not in sys.path:
-        sys.path.insert(0, str(debug_dir))
-
-
 @dataclass
 class RuntimePlan:
     entry_price: Decimal
     tp_price: Decimal
     sl_trigger_price: Decimal
-
-
-def _extract_available_balance(account_payload: dict) -> Decimal:
-    candidates = [
-        account_payload.get("available_balance"),
-        account_payload.get("free_collateral"),
-        account_payload.get("freeCollateral"),
-    ]
-
-    if isinstance(account_payload.get("results"), list) and account_payload.get("results"):
-        row = account_payload["results"][0]
-        if isinstance(row, dict):
-            candidates.extend(
-                [
-                    row.get("available_balance"),
-                    row.get("free_collateral"),
-                    row.get("freeCollateral"),
-                ],
-            )
-
-    for value in candidates:
-        if value in (None, ""):
-            continue
-        try:
-            return Decimal(str(value))
-        except Exception:
-            continue
-
-    raise RuntimeError("Unable to extract available balance from Paradex account payload")
 
 
 def _build_runtime_plan(
@@ -104,18 +59,17 @@ def _build_runtime_plan(
     return RuntimePlan(entry_price=entry, tp_price=tp, sl_trigger_price=sl)
 
 
-def _get_reference_prices(
-    http_client: _ParadexOrderbookClient, symbol: str
+async def _get_reference_prices(
+    http_client: _LighterOrderbookClient, symbol: str
 ) -> tuple[Decimal, Decimal]:
-    payload = http_client.get_orderbook(symbol)
-    data = json.loads(payload) if isinstance(payload, str) else payload
-    bids = data.get("bids", [])
-    asks = data.get("asks", [])
+    payload = await http_client.get_orderbook(symbol, limit=5)
+    bids = payload.get("bids", [])
+    asks = payload.get("asks", [])
     if not bids or not asks:
         raise RuntimeError(f"Orderbook for {symbol} has no bids/asks")
 
-    best_bid = Decimal(str(bids[0]["price"] if isinstance(bids[0], dict) else bids[0][0]))
-    best_ask = Decimal(str(asks[0]["price"] if isinstance(asks[0], dict) else asks[0][0]))
+    best_bid = Decimal(str(bids[0].get("price") if isinstance(bids[0], dict) else bids[0][0]))
+    best_ask = Decimal(str(asks[0].get("price") if isinstance(asks[0], dict) else asks[0][0]))
     return best_bid, best_ask
 
 
@@ -123,46 +77,48 @@ def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--symbol", default="BTC-USD-PERP")
     parser.add_argument("--side", choices=["BUY", "SELL"], default="BUY")
-    parser.add_argument("--quantity", type=Decimal, default=Decimal("0.01"))
+    parser.add_argument("--quantity", type=Decimal, default=Decimal("0.001"))
     parser.add_argument("--risk-pct", type=Decimal, default=None)
     parser.add_argument("--leverage", type=Decimal, default=Decimal("1"))
     parser.add_argument("--entry-bps", type=Decimal, default=Decimal("5"))
     parser.add_argument("--tp-pct", type=Decimal, default=Decimal("1.0"))
     parser.add_argument("--sl-pct", type=Decimal, default=Decimal("1.0"))
-    parser.add_argument("--entry-order-type", choices=["LIMIT", "MARKET"], default="LIMIT")
+    parser.add_argument("--entry-order-type", choices=["LIMIT", "MARKET"], default="MARKET")
+    parser.add_argument("--use-bracket", action=argparse.BooleanOptionalAction, default=False)
     parser.add_argument("--modify-entry-bps", type=Decimal, default=None)
-    parser.add_argument("--runtime-secs", type=int, default=45)
-    parser.add_argument("--reconciliation-lookback-mins", type=int, default=120)
-    parser.add_argument("--reconciliation-page-size", type=int, default=100)
-    parser.add_argument("--cancel-entry-on-accept", action="store_true")
-    parser.add_argument("--testnet", action="store_true", default=True)
-    parser.add_argument("--trader-id", default="TRADER-001")
+    parser.add_argument("--runtime-secs", type=int, default=30)
+    parser.add_argument("--reconciliation-lookback-mins", type=int, default=60)
+    parser.add_argument("--reconciliation-page-size", type=int, default=50)
     parser.add_argument(
-        "--env-file",
-        default="crates/adapters/Paradex/env_paradex",
+        "--cancel-entry-on-accept", action=argparse.BooleanOptionalAction, default=True
     )
+    parser.add_argument("--testnet", action="store_true", default=False)
+    parser.add_argument("--trader-id", default="TRADER-001")
+    parser.add_argument("--env-file", default="crates/adapters/Lighter/env_lighter")
     return parser.parse_args()
 
 
-def _build_strategy_classes():
+def _build_strategy():
     from nautilus_trader.config import StrategyConfig
     from nautilus_trader.model.enums import OrderSide, OrderType, TimeInForce
     from nautilus_trader.model.identifiers import InstrumentId
     from nautilus_trader.trading.strategy import Strategy
 
-    class ParadexSignalStrategyConfig(StrategyConfig, frozen=True):
+    class LighterSignalStrategyConfig(StrategyConfig, frozen=True):
         instrument_id: InstrumentId
         side: str
         quantity: Decimal
         entry_price: Decimal
         tp_price: Decimal
         sl_trigger_price: Decimal
-        entry_order_type: str = "LIMIT"
+        entry_order_type: str = "MARKET"
         modify_entry_bps: Decimal | None = None
-        cancel_entry_on_accept: bool = False
+        cancel_entry_on_accept: bool = True
+        degraded_market_only: bool = False
+        use_bracket: bool = False
 
-    class ParadexSignalStrategy(Strategy):
-        def __init__(self, config: ParadexSignalStrategyConfig) -> None:
+    class LighterSignalStrategy(Strategy):
+        def __init__(self, config: LighterSignalStrategyConfig) -> None:
             super().__init__(config)
             self._cancel_sent = False
             self._entry_client_order_id = None
@@ -196,6 +152,17 @@ def _build_strategy_classes():
 
             qty = instrument.make_qty(self.config.quantity)
             side = OrderSide[self.config.side.upper()]
+
+            if self.config.degraded_market_only or not self.config.use_bracket:
+                order = self.order_factory.market(
+                    instrument_id=instrument.id,
+                    order_side=side,
+                    quantity=qty,
+                    time_in_force=TimeInForce.IOC,
+                )
+                self.submit_order(order)
+                return
+
             entry_price = instrument.make_price(self.config.entry_price)
             tp_price = instrument.make_price(self.config.tp_price)
             sl_trigger_price = instrument.make_price(self.config.sl_trigger_price)
@@ -217,12 +184,6 @@ def _build_strategy_classes():
                 bracket_kwargs["entry_price"] = entry_price
 
             order_list = self.order_factory.bracket(**bracket_kwargs)
-
-            self.publish_signal(
-                name="trade_intent",
-                value=1.0,
-                ts_event=self.clock.timestamp_ns(),
-            )
             self.submit_order_list(order_list)
 
         def on_order_submitted(self, event) -> None:
@@ -230,7 +191,7 @@ def _build_strategy_classes():
 
         def on_order_accepted(self, event) -> None:
             self.log.info(
-                f"ORDER_ACCEPTED {event.client_order_id} venue_order_id={event.venue_order_id}",
+                f"ORDER_ACCEPTED {event.client_order_id} venue_order_id={event.venue_order_id}"
             )
 
             accepted_order = self.cache.order(event.client_order_id)
@@ -308,32 +269,51 @@ def _build_strategy_classes():
                     self._cancel_requested_ids.add(event_key)
                     self._cancel_attempts[event_key] = self._cancel_attempts.get(event_key, 0) + 1
                     self.cancel_order(child_order)
-            self.log.error(
-                f"ORDER_CANCEL_REJECTED {event.client_order_id} reason={event.reason}",
-            )
+            self.log.error(f"ORDER_CANCEL_REJECTED {event.client_order_id} reason={event.reason}")
 
         def on_order_filled(self, event) -> None:
             self.log.info(
-                f"ORDER_FILLED {event.client_order_id} last_qty={event.last_qty} last_px={event.last_px}",
+                f"ORDER_FILLED {event.client_order_id} last_qty={event.last_qty} last_px={event.last_px}"
             )
 
         def on_order_updated(self, event) -> None:
             self.log.info(
-                f"ORDER_UPDATED {event.client_order_id} quantity={event.quantity} price={event.price} trigger_price={event.trigger_price}",
+                f"ORDER_UPDATED {event.client_order_id} quantity={event.quantity} price={event.price} trigger_price={event.trigger_price}"
             )
 
         def on_order_modify_rejected(self, event) -> None:
-            self.log.error(
-                f"ORDER_MODIFY_REJECTED {event.client_order_id} reason={event.reason}",
-            )
+            self.log.error(f"ORDER_MODIFY_REJECTED {event.client_order_id} reason={event.reason}")
 
-    return ParadexSignalStrategyConfig, ParadexSignalStrategy
+        def on_stop(self) -> None:
+            if self._entry_client_order_id is not None:
+                entry_order = self.cache.order(self._entry_client_order_id)
+                if entry_order is not None and not self._cancel_sent:
+                    self._cancel_sent = True
+                    self.cancel_order(entry_order)
+
+            instrument_id = self.config.instrument_id
+            try:
+                open_orders = self.cache.orders_open(venue=self.venue, instrument_id=instrument_id)
+            except Exception:
+                open_orders = []
+            for open_order in open_orders:
+                if getattr(open_order, "is_closed", False):
+                    continue
+                if getattr(open_order, "is_pending_cancel", False):
+                    continue
+                key = str(open_order.client_order_id)
+                if key in self._cancel_requested_ids:
+                    continue
+                self._cancel_requested_ids.add(key)
+                self.cancel_order(open_order)
+            self._try_cancel_linked_children()
+
+    return LighterSignalStrategyConfig, LighterSignalStrategy
 
 
 def _run(args: argparse.Namespace) -> None:
     repo_root = Path(__file__).resolve().parent.parent
     _load_env_file((repo_root / args.env_file).resolve())
-    _ensure_paradex_extension(repo_root)
 
     from nautilus_trader.config import (
         InstrumentProviderConfig,
@@ -342,61 +322,62 @@ def _run(args: argparse.Namespace) -> None:
     )
     from nautilus_trader.live.node import TradingNode
     from nautilus_trader.model.identifiers import InstrumentId
-    from nautilus_adapter.adapters.Paradex.config import (
-        ParadexDataClientConfig,
-        ParadexExecClientConfig,
+    from nautilus_adapter.adapters.Lighter.config import (
+        LighterDataClientConfig,
+        LighterExecClientConfig,
     )
-    from nautilus_adapter.adapters.Paradex.factories import (
-        ParadexLiveDataClientFactory,
-        ParadexLiveExecClientFactory,
-        _build_paradex_http_client,
+    from nautilus_adapter.adapters.Lighter.factories import (
+        LighterLiveDataClientFactory,
+        LighterLiveExecClientFactory,
+        _build_lighter_backend,
     )
 
-    backend_cfg = ParadexExecClientConfig(is_testnet=args.testnet)
-    backend_client = _build_paradex_http_client(backend_cfg)
+    backend_cfg = LighterExecClientConfig(is_testnet=args.testnet)
+    backend_client = _build_lighter_backend(backend_cfg)
     if backend_client is None:
-        raise RuntimeError("Failed to build Paradex backend client from env/config")
-    if not hasattr(backend_client, "get_orderbook"):
-        raise RuntimeError("Paradex backend client missing get_orderbook")
+        raise RuntimeError("Failed to build Lighter backend client from env/config")
 
-    if not hasattr(backend_client, "get_info"):
-        raise RuntimeError("Paradex backend client missing get_info")
-
-    raw_info = cast(Any, backend_client).get_info()
-    info = json.loads(raw_info) if isinstance(raw_info, str) else raw_info
-    if not isinstance(info, dict):
-        raise RuntimeError("Unexpected Paradex market info payload")
-    available_symbols = [
-        str(row.get("symbol"))
-        for row in info.get("results", [])
-        if isinstance(row, dict) and row.get("symbol")
-    ]
-    resolved_symbol = resolve_canonical_symbol(args.symbol, available_symbols, "Paradex")
-
-    best_bid, best_ask = _get_reference_prices(
-        cast(_ParadexOrderbookClient, backend_client),
-        resolved_symbol,
-    )
-    plan = _build_runtime_plan(
-        side=args.side,
-        ref_bid=best_bid,
-        ref_ask=best_ask,
-        entry_bps=args.entry_bps,
-        tp_pct=args.tp_pct,
-        sl_pct=args.sl_pct,
-    )
-
+    degraded_market_only = False
     free_balance: Decimal | None = None
+    try:
+        info = asyncio.run(backend_client.get_info())
+        available_symbols = [
+            str(row.get("symbol")) for row in info.get("results", []) if row.get("symbol")
+        ]
+        resolved_symbol = resolve_canonical_symbol(args.symbol, available_symbols, "Lighter")
+
+        try:
+            best_bid, best_ask = asyncio.run(_get_reference_prices(backend_client, resolved_symbol))
+            plan = _build_runtime_plan(
+                side=args.side,
+                ref_bid=best_bid,
+                ref_ask=best_ask,
+                entry_bps=args.entry_bps,
+                tp_pct=args.tp_pct,
+                sl_pct=args.sl_pct,
+            )
+        except Exception:
+            if args.entry_order_type.upper() != "MARKET":
+                raise
+            degraded_market_only = True
+            best_bid = Decimal("0")
+            best_ask = Decimal("0")
+            plan = RuntimePlan(
+                entry_price=Decimal("0"),
+                tp_price=Decimal("0"),
+                sl_trigger_price=Decimal("0"),
+            )
+
+        if args.risk_pct is not None:
+            account_state = asyncio.run(backend_client.get_account_state())
+            free_balance = Decimal(str(account_state.get("available_balance") or "0"))
+    finally:
+        asyncio.run(backend_client.close())
+
     resolved_quantity = args.quantity
     if args.risk_pct is not None:
-        if not hasattr(backend_client, "get_account_state"):
-            raise RuntimeError("Paradex backend client missing get_account_state for risk sizing")
-        typed_backend = cast(Any, backend_client)
-        raw_state = typed_backend.get_account_state()
-        state = json.loads(raw_state) if isinstance(raw_state, str) else raw_state
-        if not isinstance(state, dict):
-            raise RuntimeError("Unexpected Paradex account-state payload")
-        free_balance = _extract_available_balance(state)
+        if free_balance is None:
+            raise RuntimeError("Risk sizing requested but free balance is unavailable")
         reference_price = plan.entry_price
         if reference_price <= Decimal("0"):
             reference_price = best_ask if args.side.upper() == "BUY" else best_bid
@@ -422,14 +403,17 @@ def _run(args: argparse.Namespace) -> None:
             "entry_price": str(plan.entry_price),
             "tp_price": str(plan.tp_price),
             "sl_trigger_price": str(plan.sl_trigger_price),
+            "entry_order_type": args.entry_order_type,
+            "degraded_market_only": degraded_market_only,
+            "use_bracket": args.use_bracket,
         },
     )
 
-    data_cfg = ParadexDataClientConfig(
+    data_cfg = LighterDataClientConfig(
         is_testnet=args.testnet,
         instrument_provider=InstrumentProviderConfig(load_all=True),
     )
-    exec_cfg = ParadexExecClientConfig(
+    exec_cfg = LighterExecClientConfig(
         is_testnet=args.testnet,
         instrument_provider=InstrumentProviderConfig(load_all=True),
         reconciliation_lookback_mins=args.reconciliation_lookback_mins,
@@ -442,28 +426,30 @@ def _run(args: argparse.Namespace) -> None:
             reconciliation=True,
             reconciliation_lookback_mins=args.reconciliation_lookback_mins,
         ),
-        data_clients={"PARADEX": data_cfg},
-        exec_clients={"PARADEX": exec_cfg},
+        data_clients={"LIGHTER": data_cfg},
+        exec_clients={"LIGHTER": exec_cfg},
     )
 
-    strategy_config_cls, strategy_cls = _build_strategy_classes()
+    strategy_config_cls, strategy_cls = _build_strategy()
     strategy = strategy_cls(
         strategy_config_cls(
-            instrument_id=InstrumentId.from_str(f"{resolved_symbol}.PARADEX"),
+            instrument_id=InstrumentId.from_str(f"{resolved_symbol}.LIGHTER"),
             side=args.side,
-            entry_order_type=args.entry_order_type,
-            modify_entry_bps=args.modify_entry_bps,
             quantity=resolved_quantity,
             entry_price=plan.entry_price,
             tp_price=plan.tp_price,
             sl_trigger_price=plan.sl_trigger_price,
+            entry_order_type=args.entry_order_type,
+            modify_entry_bps=args.modify_entry_bps,
             cancel_entry_on_accept=args.cancel_entry_on_accept,
+            degraded_market_only=degraded_market_only,
+            use_bracket=args.use_bracket,
         ),
     )
 
     node = TradingNode(config=node_cfg)
-    node.add_data_client_factory("PARADEX", ParadexLiveDataClientFactory)
-    node.add_exec_client_factory("PARADEX", ParadexLiveExecClientFactory)
+    node.add_data_client_factory("LIGHTER", LighterLiveDataClientFactory)
+    node.add_exec_client_factory("LIGHTER", LighterLiveExecClientFactory)
     node.trader.add_strategy(strategy)
     node.build()
 
