@@ -1,7 +1,9 @@
 #[cfg(test)]
 mod tests {
-    use crate::http::signing::{sign_schnorr_babyjubjub, sign_hmac_sha256};
-    use crate::http::parse::{parse_info_response, parse_orderbook_response, parse_trades_response};
+    use crate::http::parse::{
+        parse_info_response, parse_orderbook_response, parse_trades_response,
+    };
+    use crate::http::signing::{sign_hmac_sha256, sign_schnorr_babyjubjub};
 
     // ── Signing tests ──────────────────────────────────────────────────
 
@@ -10,7 +12,8 @@ mod tests {
         let secret_hex = hex::encode([1u8; 32]);
         let message = b"test message";
         let sig = sign_schnorr_babyjubjub(&secret_hex, message).expect("signing should succeed");
-        assert_eq!(sig.len(), 64, "SHA-256 based signature must be 64 hex chars");
+        assert_eq!(sig.len(), 128, "Schnorr signature must be 64 bytes (128 hex chars)");
+        assert!(sig.chars().all(|c| c.is_ascii_hexdigit()), "Signature must be hex-encoded");
     }
 
     #[test]

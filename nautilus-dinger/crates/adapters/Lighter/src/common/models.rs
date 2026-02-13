@@ -73,7 +73,71 @@ pub struct LighterTradesResponse {
 /// Response from POST /action (transaction submission).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LighterActionResponse {
-    pub action_id: String,
-    pub status: String,
+    pub action_id: Option<String>,
+    pub status: Option<String>,
     pub tx_signature: Option<String>,
+    pub id: Option<String>,
+    pub client_id: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LighterOrderResponse {
+    pub order_id: Option<u64>,
+    pub order_index: Option<u64>,
+    pub client_order_id: Option<u64>,
+    pub client_order_index: Option<u64>,
+    pub market_id: Option<u32>,
+    pub market_index: Option<u32>,
+    pub is_ask: Option<bool>,
+    pub order_type: Option<String>,
+    pub time_in_force: Option<String>,
+    pub status: Option<String>,
+    pub price: Option<String>,
+    pub trigger_price: Option<String>,
+    pub initial_base_amount: Option<String>,
+    pub remaining_base_amount: Option<String>,
+    pub filled_base_amount: Option<String>,
+    pub average_price: Option<String>,
+    pub timestamp: Option<u64>,
+    pub updated_at: Option<u64>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LighterOrdersResponse {
+    #[serde(default)]
+    pub orders: Vec<LighterOrderResponse>,
+    pub next: Option<String>,
+    pub prev: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LighterFillResponse {
+    pub id: Option<String>,
+    pub trade_id: Option<String>,
+    pub order_id: Option<u64>,
+    pub order_index: Option<u64>,
+    pub client_order_id: Option<u64>,
+    pub client_order_index: Option<u64>,
+    pub market_id: Option<u32>,
+    pub market_index: Option<u32>,
+    pub is_ask: Option<bool>,
+    pub side: Option<String>,
+    pub price: Option<String>,
+    pub size: Option<String>,
+    pub base_amount: Option<String>,
+    pub quantity: Option<String>,
+    pub liquidity: Option<String>,
+    pub fee: Option<String>,
+    pub fee_currency: Option<String>,
+    pub timestamp: Option<u64>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LighterFillsResponse {
+    #[serde(default)]
+    pub trades: Vec<LighterFillResponse>,
+    #[serde(default)]
+    pub results: Vec<LighterFillResponse>,
+    pub next: Option<String>,
+    pub prev: Option<String>,
 }

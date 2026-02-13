@@ -1,6 +1,6 @@
 use pyo3::prelude::*;
 
-use crate::common::enums::{LighterSide, LighterOrderType};
+use crate::common::enums::{LighterOrderType, LighterSide};
 
 /// Expose Lighter enums to Python via PyO3.
 #[pyclass]
