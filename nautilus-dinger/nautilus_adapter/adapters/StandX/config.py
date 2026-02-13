@@ -1,10 +1,6 @@
-from typing import Optional
-
-from nautilus_trader.common.config import PositiveFloat
 from nautilus_trader.common.config import PositiveInt
 from nautilus_trader.config import LiveDataClientConfig
 from nautilus_trader.config import LiveExecClientConfig
-from nautilus_trader.model.identifiers import Venue
 
 
 class StandXDataClientConfig(LiveDataClientConfig, frozen=True):
@@ -91,3 +87,5 @@ class StandXExecClientConfig(LiveExecClientConfig, frozen=True):
     max_retries: PositiveInt | None = 3
     retry_delay_initial_ms: PositiveInt | None = 1_000
     retry_delay_max_ms: PositiveInt | None = 5_000
+    reconciliation_lookback_mins: PositiveInt | None = 120
+    reconciliation_page_size: PositiveInt = 100
