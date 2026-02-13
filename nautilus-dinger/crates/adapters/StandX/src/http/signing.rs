@@ -1,3 +1,4 @@
+use base64::{engine::general_purpose, Engine as _};
 use ed25519_dalek::{Signer, SigningKey};
 
 /// Sign a message using ed25519 (ed25519-dalek).
@@ -23,10 +24,9 @@ pub fn sign_ed25519(secret_base58: &str, message: &[u8]) -> Result<Vec<u8>, Stri
     Ok(signature.to_bytes().to_vec())
 }
 
-/// Sign a message and return the signature as a base58 string.
-pub fn sign_ed25519_base58(secret_base58: &str, message: &[u8]) -> Result<String, String> {
+pub fn sign_ed25519_base64(secret_base58: &str, message: &[u8]) -> Result<String, String> {
     let sig_bytes = sign_ed25519(secret_base58, message)?;
-    Ok(bs58::encode(sig_bytes).into_string())
+    Ok(general_purpose::STANDARD.encode(sig_bytes))
 }
 
 /// Sign a message using HMAC-SHA256 (fallback for standard API key auth).
@@ -36,8 +36,8 @@ pub fn sign_hmac_sha256(secret: &str, message: &str) -> String {
 
     type HmacSha256 = Hmac<Sha256>;
 
-    let mut mac = HmacSha256::new_from_slice(secret.as_bytes())
-        .expect("HMAC can take key of any size");
+    let mut mac =
+        HmacSha256::new_from_slice(secret.as_bytes()).expect("HMAC can take key of any size");
     mac.update(message.as_bytes());
     let result = mac.finalize();
     hex::encode(result.into_bytes())

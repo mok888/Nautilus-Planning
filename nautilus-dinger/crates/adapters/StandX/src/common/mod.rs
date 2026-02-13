@@ -3,4 +3,5 @@ pub mod credential;
 pub mod enums;
 pub mod models;
 pub mod risk;
+pub mod symbols;
 pub mod urls;

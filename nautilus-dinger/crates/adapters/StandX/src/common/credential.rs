@@ -18,14 +18,15 @@ impl StandXCredential {
         api_key: Option<String>,
         api_secret: Option<String>,
     ) -> Result<Option<Self>, String> {
-        let api_key = get_or_env_var_opt(api_key, "STANDX_API_KEY");
-        let api_secret = get_or_env_var_opt(api_secret, "STANDX_API_SECRET");
+        let api_key = api_key
+            .or_else(|| env::var("STANDX_API_TOKEN").ok())
+            .or_else(|| env::var("STANDX_API_KEY").ok());
+        let api_secret = api_secret
+            .or_else(|| env::var("STANDX_REQUEST_ED25519_PRIVATE_KEY").ok())
+            .or_else(|| env::var("STANDX_API_SECRET").ok());
 
         match (api_key, api_secret) {
-            (Some(api_key), Some(api_secret)) => Ok(Some(Self {
-                api_key,
-                api_secret,
-            })),
+            (Some(api_key), Some(api_secret)) => Ok(Some(Self { api_key, api_secret })),
             (None, None) => Ok(None),
             _ => Err("Both API key and secret must be provided if one is present.".to_string()),
         }
@@ -35,8 +36,4 @@ impl StandXCredential {
     pub fn authorization_header(&self) -> String {
         format!("Bearer {}", self.api_key)
     }
-}
-
-fn get_or_env_var_opt(value: Option<String>, env_key: &str) -> Option<String> {
-    value.or_else(|| env::var(env_key).ok())
 }

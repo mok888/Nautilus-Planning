@@ -1,7 +1,9 @@
 #[cfg(test)]
 mod tests {
-    use crate::http::signing::{sign_ed25519, sign_ed25519_base58, sign_hmac_sha256};
-    use crate::http::parse::{parse_info_response, parse_orderbook_response, parse_trades_response};
+    use crate::http::parse::{
+        parse_info_response, parse_orderbook_response, parse_trades_response,
+    };
+    use crate::http::signing::{sign_ed25519, sign_hmac_sha256};
 
     // ── Signing tests ──────────────────────────────────────────────────
 
@@ -38,19 +40,6 @@ mod tests {
         let sig2 = sign_ed25519(&secret_b58, b"message B").unwrap();
 
         assert_ne!(sig1, sig2, "Different messages must produce different signatures");
-    }
-
-    #[test]
-    fn test_sign_ed25519_base58_returns_string() {
-        let secret_bytes = [1u8; 32];
-        let secret_b58 = bs58::encode(&secret_bytes).into_string();
-
-        let sig = sign_ed25519_base58(&secret_b58, b"hello").expect("signing should succeed");
-        assert!(!sig.is_empty(), "Base58 signature must not be empty");
-
-        // Should be valid base58
-        let decoded = bs58::decode(&sig).into_vec();
-        assert!(decoded.is_ok(), "Signature must be valid base58");
     }
 
     #[test]

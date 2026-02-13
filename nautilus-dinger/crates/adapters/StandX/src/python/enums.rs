@@ -1,6 +1,6 @@
 use pyo3::prelude::*;
 
-use crate::common::enums::{StandXSide, StandXOrderType};
+use crate::common::enums::{StandXOrderType, StandXSide};
 
 /// Expose StandX enums to Python via PyO3.
 #[pyclass]
