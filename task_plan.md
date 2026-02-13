@@ -1,46 +1,41 @@
 # Task Plan
 
 ## Goal
-Update project planning artifacts to reflect completed `/init-deep` work: discovery, scoring, AGENTS hierarchy generation, and review.
+Fully implement Lighter adapter components in Rust and Python to Paradex-level completeness while preserving Nautilus adapter conventions, using `nautilus_network::http::HttpClient`, and keeping adapter code free of direct `reqwest` usage.
 
 ## Scope
-- Document what was completed in this session.
-- Capture AGENTS location decisions and reasons.
-- Record created/updated files and follow-up actions.
+- Close all meaningful stub gaps in `nautilus-dinger/crates/adapters/Lighter/` and `nautilus-dinger/nautilus_adapter/adapters/Lighter/`.
+- Keep implementation aligned with in-repo patterns (Paradex first, then other mature adapters).
+- Validate with Rust + Python checks and explicit dependency guardrails.
 
 ## Phases
 | Phase | Status | Notes |
 |------|--------|-------|
-| Discovery | complete | Parallel explore/librarian + direct grep/ast/lsp + structural metrics |
-| Scoring | complete | Selected high-signal boundaries; skipped noisy/generated zones |
-| Generate | complete | Updated root `AGENTS.md`; created 7 subdirectory `AGENTS.md` files |
-| Review | complete | Deduplicated/trimmed child docs and verified hierarchy |
-| Planning files sync | complete | Added `task_plan.md`, `findings.md`, `progress.md` |
-| Planning refresh | complete | Re-checked planning files on follow-up request and confirmed consistency |
+| Planning bootstrap | complete | Catchup run; planning files repointed to Lighter implementation mission |
+| Gap mapping | complete | Lighter vs Paradex parity map produced (Python stubs + Rust binding gaps) |
+| Python implementation | complete | Backend/execution/data/providers/factories implemented; market data translation verified by tests |
+| Rust implementation | complete | HTTP/order parity + signing updates + Raw/Domain Python client exposure |
+| Validation | complete | `cargo check/test` + `pytest -k Lighter` + canary CLI checks + runtime smoke evidence |
+| Finalization | complete | Findings/progress refreshed with exhaustive search evidence and stable mainnet canary path |
 
-## AGENTS Location Decisions
-| Path | Decision | Reason |
-|------|----------|--------|
-| `.` | update | Root summary and navigation hub |
-| `builder/` | create | Distinct control-plane boundary |
-| `builder/auth-scraper/` | create | Standalone auth utility with unique conventions |
-| `builder/templates/` | create | Canonical template source-of-truth |
-| `builder/snapshots/` | create | Golden regression domain |
-| `nautilus-dinger/` | create | Nested package/workspace boundary |
-| `nautilus-dinger/crates/adapters/` | create | Repeated Rust crate topology |
-| `nautilus-dinger/nautilus_adapter/adapters/` | create | Repeated Python adapter topology |
+## Progressive #1-#4 Status
+1. Adapter-runtime live canary: complete with mainnet credentials (accepted -> canceled terminal path; canary compliance pass observed).
+2. Rust HTTP/order parity: complete.
+3. Real Rust signing replacement: complete (`jubjub-schnorr` path integrated, tests updated/passing).
+4. Market data event translation: complete (Python translation paths and tests passing).
 
-## Exclusions / Low-Priority Zones
-- `nautilus-dinger/target/` (build artifacts)
-- `builder/auth-scraper/venv/` (local environment)
-- `__pycache__/`, `.pytest_cache/`, `.ruff_cache/`, `.llm_cache/` (cache/noise)
-- `builder/auth-scraper/temp_*_pkg/` (temporary vendor packages)
+## Paradex-Standard Alignment
+- Additional parity pass completed for canary semantics and execution lifecycle handling.
+- Lighter canary report model now mirrors Paradex-style observability fields and aggregate criteria.
+- Lighter execution flow now includes Paradex-like status/not-found handling and conditional modify retry path.
 
-## Errors Encountered
-| Error | Attempt | Resolution |
-|-------|---------|------------|
-| No LSP for `.md`/`.toml` | 1 | Used direct file verification + git status checks |
+## Hard Constraints
+- No direct `reqwest` usage in adapter crate code.
+- Follow Nautilus `LiveExecutionClient` and `LiveMarketDataClient` method contracts.
+- No fake/no-op passes for required order lifecycle operations.
 
-## Remaining Follow-ups
-1. Optional: commit AGENTS hierarchy changes when requested.
-2. Optional: extend AGENTS to additional subdomains if project grows.
+## Current Assumption
+The target is the Lighter adapter (not Nado/other venues) and parity baseline is Paradex behavior/conventions where applicable.
+
+## Remaining External Dependency
+- Venue-side rate limits can intermittently surface in `query_order`; canary now tolerates this known transient when terminal lifecycle is otherwise successful.

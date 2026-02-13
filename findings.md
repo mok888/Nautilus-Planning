@@ -1,47 +1,99 @@
 # Findings
 
 ## Session Summary
-`/init-deep` completed with exhaustive discovery (parallel background agents + direct tools) and produced a practical AGENTS hierarchy focused on real module boundaries.
+Planning context switched from AGENTS hierarchy work to full Lighter adapter implementation (Rust + Python) with Paradex parity target.
 
-## Key Discoveries
+## Early Evidence
+- Lighter Python runtime still has critical stubs (`pass`) in execution and data clients.
+- Existing live tests used auth-scraper/SDK path, not Nautilus adapter runtime path.
+- Lighter Rust crate compiles/tests, but no-`reqwest` constraint must be preserved through all edits.
 
-### Repository Shape
-- Monorepo split is intentional: `builder/` (generation control plane) + `nautilus-dinger/` (runtime package/workspace).
-- Existing deep authority file: `builder/pipeline/AGENTS.md`.
+## Constraints to Preserve
+- Use hyper-based stack already present in adapters.
+- Keep Nautilus lifecycle/reporting semantics in execution/data client methods.
+- Prefer in-repo reference implementations over new external patterns.
 
-### High-Signal Documentation Boundaries
-- `builder/` is where orchestration and policy live.
-- `builder/auth-scraper/` is domain-specific and should be isolated from core generation docs.
-- `builder/templates/` is canonical for output shape and placeholder policy.
-- `builder/snapshots/` is golden regression space, not runtime source.
-- `nautilus-dinger/` is runtime/package boundary; adapters split cleanly into Rust and Python trees.
+## Pending Discovery Inputs
+- Background parity gap map (`bg_482f4b56`)
+- Background Nautilus implementation patterns (`bg_97c4939c`)
+- Background compliance checklist (`bg_e976bc41`)
 
-### Adapter Patterns
-- Rust adapters follow stable topology (`common/http/websocket/python/data/execution/testing`) with feature gates.
-- Python adapters follow stable 7-file exchange layout (`config/constants/data/execution/factories/providers` + `__init__.py`).
-- `Paradex` Python adapter is the most complete implementation reference.
+## Implementation Outcomes
+- Replaced Lighter Python stub paths with concrete implementations:
+  - Added `nautilus-dinger/nautilus_adapter/adapters/Lighter/backend.py` (SDK-backed venue bridge).
+  - Reworked `nautilus-dinger/nautilus_adapter/adapters/Lighter/execution.py` to full order lifecycle + report generation + reconciliation.
+  - Reworked `nautilus-dinger/nautilus_adapter/adapters/Lighter/data.py` with connect/subscription hooks and instrument publishing.
+  - Reworked `nautilus-dinger/nautilus_adapter/adapters/Lighter/providers.py` with async market loading + instrument construction.
+  - Reworked `nautilus-dinger/nautilus_adapter/adapters/Lighter/factories.py` to build and inject backend clients.
+  - Extended `nautilus-dinger/nautilus_adapter/adapters/Lighter/config.py` with reconciliation settings.
 
-### Command Surfaces
-- Canonical CLI source: `builder/cli.py`.
-- Entrypoint aliases in nested package route to the same CLI (`builder`, `dinger`, `nautilus-dinger`).
-- Makefiles split concerns: workspace tests/build vs auth-scraper schema/test commands.
+- Improved Rust-side Python interop for Lighter:
+  - Replaced `nautilus-dinger/crates/adapters/Lighter/src/python/http.rs` with functional PyO3 client methods for current Rust HTTP API.
+  - Updated `nautilus-dinger/crates/adapters/Lighter/src/python/mod.rs` to register bindings.
 
-### Noise/Generated Zones (Document Minimally)
-- `target/`, `venv/`, `temp_*_pkg/`, cache directories.
-- These zones are large but low-value for architectural guidance.
+## Verification Evidence
+- `cargo check -p lighter` passed.
+- `cargo test -p lighter` passed (13/13).
+- `python3 -m pytest tests/test_adapters.py -k Lighter` passed (14 selected tests).
+- LSP diagnostics are clean on all changed Lighter Python adapter files.
+- No direct `reqwest` usage introduced in adapter crates (scan clean for `nautilus-dinger/crates/adapters/**`).
 
-## Produced AGENTS Hierarchy
-- Updated: `AGENTS.md`
-- Added:
-  - `builder/AGENTS.md`
-  - `builder/auth-scraper/AGENTS.md`
-  - `builder/templates/AGENTS.md`
-  - `builder/snapshots/AGENTS.md`
-  - `nautilus-dinger/AGENTS.md`
-  - `nautilus-dinger/crates/adapters/AGENTS.md`
-  - `nautilus-dinger/nautilus_adapter/adapters/AGENTS.md`
+## Additional Findings (Progressive #1-#4)
+- Rust HTTP layer already follows guide: uses `nautilus_network::http::HttpClient` in `nautilus-dinger/crates/adapters/Lighter/src/http/client.rs`.
+- Exposed both Python clients:
+  - Raw: `PyLighterRawHttpClient`
+  - Domain (primary): `PyLighterHttpClient`
+  in `nautilus-dinger/crates/adapters/Lighter/src/python/http.rs` and bindings registration.
+- Runtime canary execution evidence:
+  - Added local SDK environment at `nautilus-dinger/.venv` and installed official package from `elliottech/lighter-python` (`lighter-sdk`).
+  - `PYTHONPATH=<.venv site-packages> python3 scripts/lighter_market_canary.py --testnet ...` ran and produced structured report with `submitted=true`, `startup_reconciliation_ok=true`, terminal state `REJECTED`.
+  - `PYTHONPATH=<.venv site-packages> python3 scripts/lighter_strategy_runner.py --testnet ...` bootstrapped and connected data path; execution connection failed with venue response `api key not found`.
+- Added explicit backend error message for missing Lighter SDK package in `nautilus-dinger/nautilus_adapter/adapters/Lighter/backend.py`.
 
-## Documentation Style Decisions
-- Kept child docs telegraphic and local-scope only.
-- Avoided repeating deep pipeline internals already covered by `builder/pipeline/AGENTS.md`.
-- Avoided creating AGENTS files in noisy/generated directories.
+## Exhaustive Search Findings (Codebase + External)
+- Internal pattern mining (`explore` + Grep/AST) identified Paradex parity anchors for terminal-state handling and graceful cancel loops:
+  - `nautilus-dinger/scripts/paradex_market_canary.py`
+  - `nautilus-dinger/scripts/paradex_strategy_runner.py`
+  - `nautilus-dinger/nautilus_adapter/adapters/Paradex/execution.py`
+- External research (`librarian`) confirmed official Lighter SDK constraints and flow:
+  - order type/time-in-force constants in `elliottech/lighter-python`
+  - status querying via active/inactive order endpoints
+  - cancel semantics based on order index/client order index usage.
+- External research (`librarian`) for aiohttp teardown pointed to deterministic close ordering and explicit nested-session closure; applied in backend close path.
+
+## Final Runtime Outcomes
+- Mainnet strategy run now reaches terminal lifecycle events through Nautilus runtime path:
+  - `OrderSubmitted` -> `OrderAccepted` -> `OrderCanceled`.
+- Mainnet canary achieved compliance pass with terminal state `CANCELED` and report persisted at:
+  - `nautilus-dinger/scripts/lighter_market_canary_report_mainnet.json`.
+
+## Stabilization Changes Applied
+- Terminal-state hardening:
+  - strategy auto-cancel on accept and stop hooks in `nautilus-dinger/scripts/lighter_strategy_runner.py`.
+  - market-order submission compatibility fixes in `nautilus-dinger/nautilus_adapter/adapters/Lighter/execution.py`.
+  - client-order-index normalization/bounds for venue constraints in `nautilus-dinger/nautilus_adapter/adapters/Lighter/backend.py`.
+- Canary robustness:
+  - added optional testnet flag pass-through and terminal-state probe scaffolding in `nautilus-dinger/scripts/lighter_market_canary.py`.
+  - filtered known non-fatal query-order rate-limit signal from hard-fail classification in `nautilus-dinger/scripts/lighter_market_canary.py`.
+- Cleanup robustness:
+  - explicit nested API/rest/pool session close sequencing in `nautilus-dinger/nautilus_adapter/adapters/Lighter/backend.py`.
+  - unclosed aiohttp session warnings are no longer present on validated strategy shutdown run.
+
+## Paradex-Standard Parity Upgrades (Latest)
+- Extended Lighter canary semantics to Paradex-like structure in `nautilus-dinger/scripts/lighter_market_canary.py`:
+  - added `entry_client_order_id`, `cancel_rejected`, `cancel_action`, `notes`, `full_soak`, `critical_ok_count`, `terminal_success_count` in reports.
+  - added accepted-order terminal probe path with backend cancel/status check.
+  - retained robust handling for known non-fatal query-order 429 log noise.
+- Extended Lighter execution parity in `nautilus-dinger/nautilus_adapter/adapters/Lighter/execution.py`:
+  - added richer status mapping coverage (`OPEN`, `NEW`, `UNTRIGGERED`, `PENDING`, `IN_PROGRESS`).
+  - aligned not-found cancellation detection with Paradex-style identifiers (`ORDER_ID_NOT_FOUND`, `CLIENT_ORDER_ID_NOT_FOUND`).
+  - implemented conditional modify-order flow (when backend exposes `modify_order`) including retry-on-not-open logic and `generate_order_updated` emission.
+
+## Latest Verification Evidence
+- `python3 -m pytest tests/test_adapters.py -k Lighter` passed after parity upgrades.
+- Mainnet canary remains compliant after parity upgrades:
+  - `compliance_pass=true`, `terminal_state=CANCELED`
+  - report: `nautilus-dinger/scripts/lighter_market_canary_report_mainnet.json`.
+
+## Dependency Note
+- `reqwest v0.13.2` appears transitively via Nautilus upstream crate `nautilus-network`; not from direct adapter code dependency declarations.
